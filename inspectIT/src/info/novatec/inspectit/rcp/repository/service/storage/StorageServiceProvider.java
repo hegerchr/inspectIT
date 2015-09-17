@@ -18,8 +18,8 @@ import info.novatec.inspectit.storage.LocalStorageData;
 import java.util.List;
 
 /**
- * Provider of all storage related services. This classes correctly initialize the service with help
- * of Spring.
+ * Provider of all storage related services. This classes correctly initialize
+ * the service with help of Spring.
  * 
  * @author Ivan Senic
  * 
@@ -42,7 +42,8 @@ public abstract class StorageServiceProvider {
 	 *            Indexing tree.
 	 * @return Properly initialized {@link StorageTimerDataAccessService}.
 	 */
-	public StorageTimerDataAccessService createStorageTimerDataAccessService(StorageRepositoryDefinition storageRepositoryDefinition, LocalStorageData localStorageData,
+	public StorageTimerDataAccessService createStorageTimerDataAccessService(
+			StorageRepositoryDefinition storageRepositoryDefinition, LocalStorageData localStorageData,
 			IStorageTreeComponent<TimerData> storageTreeComponent) {
 		StorageTimerDataAccessService storageTimerDataService = createStorageTimerDataAccessService();
 		storageTimerDataService.setStorageRepositoryDefinition(storageRepositoryDefinition);
@@ -67,7 +68,8 @@ public abstract class StorageServiceProvider {
 	 *            Indexing tree.
 	 * @return Properly initialized {@link StorageHttpTimerDataAccessService}.
 	 */
-	public StorageHttpTimerDataAccessService createStorageHttpTimerDataAccessService(StorageRepositoryDefinition storageRepositoryDefinition, LocalStorageData localStorageData,
+	public StorageHttpTimerDataAccessService createStorageHttpTimerDataAccessService(
+			StorageRepositoryDefinition storageRepositoryDefinition, LocalStorageData localStorageData,
 			IStorageTreeComponent<HttpTimerData> storageTreeComponent) {
 		StorageHttpTimerDataAccessService storageHttpTimerDataService = createStorageHttpTimerDataAccessService();
 		storageHttpTimerDataService.setStorageRepositoryDefinition(storageRepositoryDefinition);
@@ -92,7 +94,8 @@ public abstract class StorageServiceProvider {
 	 *            Indexing tree.
 	 * @return Properly initialized {@link StorageSqlDataAccessService}.
 	 */
-	public StorageSqlDataAccessService createStorageSqlDataAccessService(StorageRepositoryDefinition storageRepositoryDefinition, LocalStorageData localStorageData,
+	public StorageSqlDataAccessService createStorageSqlDataAccessService(
+			StorageRepositoryDefinition storageRepositoryDefinition, LocalStorageData localStorageData,
 			IStorageTreeComponent<SqlStatementData> storageTreeComponent) {
 		StorageSqlDataAccessService storageSqlDataAccessService = createStorageSqlDataAccessService();
 		storageSqlDataAccessService.setStorageRepositoryDefinition(storageRepositoryDefinition);
@@ -117,7 +120,8 @@ public abstract class StorageServiceProvider {
 	 *            Indexing tree.
 	 * @return Properly initialized {@link StorageExceptionDataAccessService}.
 	 */
-	public StorageExceptionDataAccessService createStorageExceptionDataAccessService(StorageRepositoryDefinition storageRepositoryDefinition, LocalStorageData localStorageData,
+	public StorageExceptionDataAccessService createStorageExceptionDataAccessService(
+			StorageRepositoryDefinition storageRepositoryDefinition, LocalStorageData localStorageData,
 			IStorageTreeComponent<ExceptionSensorData> storageTreeComponent) {
 		StorageExceptionDataAccessService storageExceptionDataAccessService = createStorageExceptionDataAccessService();
 		storageExceptionDataAccessService.setStorageRepositoryDefinition(storageRepositoryDefinition);
@@ -143,7 +147,8 @@ public abstract class StorageServiceProvider {
 	 * @param cachedDataSer
 	 * @return Properly initialized {@link StorageInvocationDataAccessService}.
 	 */
-	public StorageInvocationDataAccessService createStorageInvocationDataAccessService(StorageRepositoryDefinition storageRepositoryDefinition, LocalStorageData localStorageData,
+	public StorageInvocationDataAccessService createStorageInvocationDataAccessService(
+			StorageRepositoryDefinition storageRepositoryDefinition, LocalStorageData localStorageData,
 			IStorageTreeComponent<InvocationSequenceData> storageTreeComponent) {
 		StorageInvocationDataAccessService storageInvocationDataAccessService = createStorageInvocationDataAccessService();
 		storageInvocationDataAccessService.setStorageRepositoryDefinition(storageRepositoryDefinition);
@@ -170,7 +175,8 @@ public abstract class StorageServiceProvider {
 	 *            Agents related to storage.
 	 * @return Properly initialized {@link StorageGlobalDataAccessService}.
 	 */
-	public StorageGlobalDataAccessService createStorageGlobalDataAccessService(StorageRepositoryDefinition storageRepositoryDefinition, LocalStorageData localStorageData,
+	public StorageGlobalDataAccessService createStorageGlobalDataAccessService(
+			StorageRepositoryDefinition storageRepositoryDefinition, LocalStorageData localStorageData,
 			IStorageTreeComponent<DefaultData> storageTreeComponent, List<PlatformIdent> platformIdents) {
 		StorageGlobalDataAccessService storageGlobalDataAccessService = createStorageGlobalDataAccessService();
 		storageGlobalDataAccessService.setStorageRepositoryDefinition(storageRepositoryDefinition);
@@ -196,13 +202,36 @@ public abstract class StorageServiceProvider {
 	 *            Indexing tree.
 	 * @return Properly initialized {@link StorageJmxDataAccessService}.
 	 */
-	public StorageJmxDataAccessService createStorageJmxDataAccessService(StorageRepositoryDefinition storageRepositoryDefinition, LocalStorageData localStorageData,
+	public StorageJmxDataAccessService createStorageJmxDataAccessService(
+			StorageRepositoryDefinition storageRepositoryDefinition, LocalStorageData localStorageData,
 			IStorageTreeComponent<JmxSensorValueData> storageTreeComponent) {
 		StorageJmxDataAccessService storageJmxDataAccessService = createStorageJmxDataAccessService();
 		storageJmxDataAccessService.setStorageRepositoryDefinition(storageRepositoryDefinition);
 		storageJmxDataAccessService.setLocalStorageData(localStorageData);
 		storageJmxDataAccessService.setIndexingTree(storageTreeComponent);
 		return storageJmxDataAccessService;
+	}
+
+	/**
+	 * @return Spring created {@link StorageDITResultsAccessService}.
+	 */
+	protected abstract StorageDITResultsAccessService createStorageDITResultsAccessService();
+
+	/**
+	 * Properly initialized {@link StorageTimerDataAccessService}.
+	 * 
+	 * @param localStorageData
+	 *            {@link LocalStorageData}.
+	 * @param storageRepositoryDefinition
+	 *            {@link StorageRepositoryDefinition}.
+	 * @return Properly initialized {@link StorageDITResultsAccessService}.
+	 */
+	public StorageDITResultsAccessService createStorageDITResultsAccessService(
+			StorageRepositoryDefinition cmrRepositoryDefinition, LocalStorageData localStorageData) {
+		StorageDITResultsAccessService ditResultsAccessService = createStorageDITResultsAccessService();
+		ditResultsAccessService.setCmrRepositoryDefinition(cmrRepositoryDefinition);
+		ditResultsAccessService.setStorageDataId(localStorageData.getId());
+		return ditResultsAccessService;
 	}
 	
 	/**

@@ -37,6 +37,7 @@
    <intro introId="info.novatec.inspectit.rcp.intro"/>
 
    <vm>
+      <linux include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</linux>
    </vm>
 
    <license>
@@ -98,6 +99,8 @@ NTSales_Allgemeine_Nutzungsbedingungen_inspectIT_en.doc_V2.0 / 24.07.2012
       <plugin id="com.ibm.icu"/>
       <plugin id="com.springsource.javax.inject"/>
       <plugin id="com.springsource.org.aopalliance"/>
+      <plugin id="cta.api"/>
+      <plugin id="diagnoseit.spike.trace.services"/>
       <plugin id="info.novatec.asm"/>
       <plugin id="info.novatec.asm-all-shaded"/>
       <plugin id="info.novatec.hamcrest-all"/>
@@ -139,7 +142,21 @@ NTSales_Allgemeine_Nutzungsbedingungen_inspectIT_en.doc_V2.0 / 24.07.2012
       <plugin id="org.eclipse.core.databinding.observable"/>
       <plugin id="org.eclipse.core.databinding.property"/>
       <plugin id="org.eclipse.core.expressions"/>
+      <plugin id="org.eclipse.core.filesystem"/>
+      <plugin id="org.eclipse.core.filesystem.aix.ppc" fragment="true"/>
+      <plugin id="org.eclipse.core.filesystem.aix.ppc64" fragment="true"/>
+      <plugin id="org.eclipse.core.filesystem.hpux.ia64_32" fragment="true"/>
+      <plugin id="org.eclipse.core.filesystem.linux.ppc" fragment="true"/>
+      <plugin id="org.eclipse.core.filesystem.linux.ppc64" fragment="true"/>
+      <plugin id="org.eclipse.core.filesystem.linux.x86" fragment="true"/>
+      <plugin id="org.eclipse.core.filesystem.linux.x86_64" fragment="true"/>
+      <plugin id="org.eclipse.core.filesystem.macosx" fragment="true"/>
+      <plugin id="org.eclipse.core.filesystem.solaris.sparc" fragment="true"/>
+      <plugin id="org.eclipse.core.filesystem.win32.x86" fragment="true"/>
+      <plugin id="org.eclipse.core.filesystem.win32.x86_64" fragment="true"/>
       <plugin id="org.eclipse.core.jobs"/>
+      <plugin id="org.eclipse.core.resources"/>
+      <plugin id="org.eclipse.core.resources.win32.x86" fragment="true"/>
       <plugin id="org.eclipse.core.runtime"/>
       <plugin id="org.eclipse.core.runtime.compatibility.registry" fragment="true"/>
       <plugin id="org.eclipse.equinox.app"/>

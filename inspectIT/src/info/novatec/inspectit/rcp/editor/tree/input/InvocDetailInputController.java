@@ -93,7 +93,7 @@ public class InvocDetailInputController extends AbstractTreeInputController {
 	 * @author Patrice Bouillet
 	 * 
 	 */
-	private static enum Column {
+	protected static enum Column {
 		/** The method column. */
 		METHOD("Method", 700, InspectITImages.IMG_CALL_HIERARCHY),
 		/** The duration column. */
@@ -371,7 +371,7 @@ public class InvocDetailInputController extends AbstractTreeInputController {
 	 *            The enumeration ID.
 	 * @return The styled string containing the information from the data object.
 	 */
-	private static StyledString getStyledTextForColumn(InvocationSequenceData data, MethodIdent methodIdent, Column enumId) {
+	protected static StyledString getStyledTextForColumn(InvocationSequenceData data, MethodIdent methodIdent, Column enumId) {
 		StyledString styledString = null;
 		switch (enumId) {
 		case METHOD:

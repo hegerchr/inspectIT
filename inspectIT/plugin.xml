@@ -515,10 +515,26 @@
       <command
             id="info.novatec.inspectit.rcp.ci.duplicateProfile"
             name="Duplicate Profile">
+      </command>            
+      <command
+            id="info.novatec.inspectit.rcp.commands.openDiagnoseITResultsView"
+            name="Show diagnoseIT Results">
+      </command>
+      <command
+            id="info.novatec.inspectit.rcp.commands.executeDiagnoseITAnalysis"
+            name="Execute diagnoseIT Analysis">
       </command>
       <command 
       		id="info.novatec.inspectit.rcp.commands.copyLogMessage" 
       		name="Copy Log Message">
+	  </command>
+      <command
+            id="info.novatec.inspectit.rcp.commands.showAffectedInvocationSequences"
+            name="Show Affected Invocation Sequence(s)">
+      </command>
+      <command
+            id="info.novatec.inspectit.rcp.commands.diagnoseITStorage"
+            name="diagnoseIT Storage">
       </command>
       <command
             id="info.novatec.inspectit.rcp.ci.moveApplicationUp"
@@ -1591,9 +1607,16 @@
                      value="1">
                </count>
                <iterate>
-                  <instanceof
-                        value="info.novatec.inspectit.communication.DefaultData">
-                  </instanceof>
+                  <and>
+                     <instanceof
+                           value="info.novatec.inspectit.communication.DefaultData">
+                     </instanceof>
+                     <not>
+                        <instanceof
+                              value="info.novatec.inspectit.rcp.diagnoseit.overview.DITResultElement">
+                        </instanceof>
+                     </not>
+                  </and>
                </iterate>
             </and>
          </activeWhen>
@@ -1960,6 +1983,103 @@
                   </iterate>
                </or>
             </and>
+        </activeWhen>
+      </handler>
+		<handler
+            class="info.novatec.inspectit.rcp.handlers.OpenDiagnoseITResultsHandler"
+            commandId="info.novatec.inspectit.rcp.commands.openDiagnoseITResultsView">
+         <activeWhen>
+            <or>
+               <iterate
+                     ifEmpty="false">
+                  <instanceof
+                        value="info.novatec.inspectit.rcp.provider.ICmrRepositoryProvider">
+                  </instanceof>
+                  <test
+                        property="info.novatec.inspectit.onlineStatus"
+                        value="ONLINE">
+                  </test>
+               </iterate>
+               <with
+                     variable="activePart">
+                  <test
+                        property="info.novatec.inspectit.repositoryType"
+                        value="cmrRepositoryDefinition">
+                  </test>
+                  <test
+                        property="info.novatec.inspectit.onlineStatus"
+                        value="ONLINE">
+                  </test>
+               </with>
+            </or>
+         </activeWhen>
+      </handler>
+      <handler
+            class="info.novatec.inspectit.rcp.handlers.ExecuteDiagnoseITAnalysisHandler"
+            commandId="info.novatec.inspectit.rcp.commands.executeDiagnoseITAnalysis">
+         <activeWhen>
+            <and>
+               <count
+                     value="+">
+               </count>
+               <with
+                     variable="activeEditor">
+                  <and>
+                     <instanceof
+                           value="info.novatec.inspectit.rcp.editor.root.AbstractRootEditor">
+                     </instanceof>
+                     <test
+                           property="info.novatec.inspectit.isCMRRepositoryAvailable">
+                     </test>
+                  </and>
+               </with>
+               <with
+                     variable="selection">
+                  <test
+                        property="info.novatec.inspectit.canExecuteDiagnoseIT">
+                  </test>
+               </with>
+            </and>
+         </activeWhen>
+      </handler>
+      <handler
+            class="info.novatec.inspectit.rcp.handlers.ShowAffectedInvocationSequencesHandler"
+            commandId="info.novatec.inspectit.rcp.commands.showAffectedInvocationSequences">
+         <activeWhen>
+            <and>
+               <with
+                     variable="selection">
+                  <test
+                        property="info.novatec.inspectit.canNavigateToAffectedInvocationSequences">
+                  </test>
+               </with>
+               <with
+                     variable="activeEditor">
+                  <instanceof
+                        value="info.novatec.inspectit.rcp.editor.root.AbstractRootEditor">
+                  </instanceof>
+               </with>
+            </and>
+         </activeWhen>
+      </handler>
+      <handler
+            class="info.novatec.inspectit.rcp.handlers.OpenStorageDiagnoseITResultsHandler"
+            commandId="info.novatec.inspectit.rcp.commands.diagnoseITStorage">
+         <activeWhen>
+            <and>
+               <count
+                     value="1">
+               </count>
+               <iterate>
+                  <instanceof
+                        value="info.novatec.inspectit.rcp.provider.IStorageDataProvider">
+                  </instanceof>
+                  <test
+                        property="info.novatec.inspectit.storageState"
+                        value="CLOSED">
+                  </test>
+               </iterate>
+            </and>
          </activeWhen>
       </handler>
       <handler
@@ -2085,7 +2205,7 @@
             class="info.novatec.inspectit.rcp.editor.testers.NavigationTester"
             id="info.novatec.inspectit.NavigationTester"
             namespace="info.novatec.inspectit"
-            properties="canNavigateToPlotting, canNavigateToInvocations, canNavigateToExceptionType, canNavigateToAggregatedTimerData, canNavigateToAggregatedSqlData"
+            properties="canNavigateToPlotting, canNavigateToInvocations, canNavigateToExceptionType, canNavigateToAggregatedTimerData, canNavigateToAggregatedSqlData, canExecuteDiagnoseIT, canNavigateToAffectedInvocationSequences"
             type="org.eclipse.jface.viewers.StructuredSelection">
       </propertyTester>
       <propertyTester
@@ -2184,6 +2304,13 @@
             namespace="info.novatec.inspectit"
             properties="hasLoggingData, hasSQLData"
             type="info.novatec.inspectit.communication.data.InvocationSequenceData">
+    </propertyTester>
+	<propertyTester
+            class="info.novatec.inspectit.rcp.editor.testers.RepositoryDefinitionTypeTester"
+            id="info.novatec.inspectit.RepositoryDefinitionTypeTester"
+            namespace="info.novatec.inspectit"
+            properties="isCMRRepositoryAvailable"
+            type="info.novatec.inspectit.rcp.editor.root.AbstractRootEditor">
       </propertyTester>
       <propertyTester
             class="info.novatec.inspectit.rcp.ci.testers.BusinessContextTester"
@@ -2347,12 +2474,24 @@
                   value="false">
             </parameter>
          </command>
+         <command
+               commandId="info.novatec.inspectit.rcp.commands.showAffectedInvocationSequences"
+               icon="icons/selfmade/diagnoseIT_sequence.gif"
+               label="Navigate to Invocation Sequence(s)"
+               style="push">
+            <visibleWhen
+                  checkEnabled="true">
+            </visibleWhen>
+         </command>
       </menuContribution>
       <menuContribution
             locationURI="popup:inspectit.editor.formrooteditor.tablesubview">
          <command
                commandId="info.novatec.inspectit.rcp.commands.details"
                style="push">
+            <visibleWhen
+                  checkEnabled="true">
+            </visibleWhen>
          </command>
          <menu
                icon="icons/eclipse/next_nav.gif"
@@ -2505,6 +2644,24 @@
          <command
                commandId="org.eclipse.ui.file.save"
                label="Save on Server"
+               style="push">
+            <visibleWhen
+                  checkEnabled="true">
+            </visibleWhen>
+         </command>
+         <command
+               commandId="info.novatec.inspectit.rcp.commands.executeDiagnoseITAnalysis"
+               icon="icons/selfmade/diagnoseIT.gif"
+               label="diagnoseIT"
+               style="push">
+            <visibleWhen
+                  checkEnabled="true">
+            </visibleWhen>
+         </command>
+         <command
+               commandId="info.novatec.inspectit.rcp.commands.showAffectedInvocationSequences"
+               icon="icons/selfmade/diagnoseIT_sequence.gif"
+               label="Navigate to Invocation Sequence(s)"
                style="push">
             <visibleWhen
                   checkEnabled="true">
@@ -2775,6 +2932,11 @@
                icon="icons/eclipse/export.gif"
                style="push">
          </command>
+         <command
+               commandId="info.novatec.inspectit.rcp.commands.diagnoseITStorage"
+               icon="icons/selfmade/diagnoseIT.gif"
+               style="push">
+         </command>
          <separator
                name="info.novatec.inspectit.rcp.storageManagerToolbar.separator2"
                visible="true">
@@ -2878,6 +3040,16 @@
          </command>
          <separator
                name="info.novatec.inspectit.rcp.repositoryManagerToolbar.separator3"
+               visible="true">
+         </separator>
+         <command
+               commandId="info.novatec.inspectit.rcp.commands.openDiagnoseITResultsView"
+               icon="icons/selfmade/diagnoseIT.gif"
+               style="push"
+               tooltip="Show diagnoseIT Results">
+         </command>
+         <separator
+               name="info.novatec.inspectit.rcp.repositoryManagerToolbar.separator4"
                visible="true">
          </separator>
          <command
@@ -2990,6 +3162,11 @@
                icon="icons/eclipse/export.gif"
                style="push">
          </command>
+         <command
+               commandId="info.novatec.inspectit.rcp.commands.diagnoseITStorage"
+               icon="icons/selfmade/diagnoseIT.gif"
+               style="push">
+         </command>
       </menuContribution>
       <menuContribution
             locationURI="popup:info.novatec.inspectit.rcp.view.repositoryManager.repositoryTree">
@@ -3086,6 +3263,16 @@
                commandId="org.eclipse.ui.edit.delete"
                label="Delete Agent"
                style="push">
+         </command>
+         <separator
+               name="info.novatec.inspectit.rcp.repositoryManagerToolbar.separator4"
+               visible="true">
+         </separator>
+         <command
+               commandId="info.novatec.inspectit.rcp.commands.openDiagnoseITResultsView"
+               icon="icons/selfmade/diagnoseIT.gif"
+               style="push"
+               tooltip="Show diagnoseIT results">
          </command>
       </menuContribution>
       <menuContribution

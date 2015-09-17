@@ -132,6 +132,7 @@ public class TreeSubView extends AbstractSubView implements ISearchExecutor {
 				}
 			}
 		});
+
 		treeViewer.setComparator(treeInputController.getComparator());
 		if (null != treeViewer.getComparator()) {
 			TreeColumn[] treeColumns = treeViewer.getTree().getColumns();

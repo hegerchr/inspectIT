@@ -124,7 +124,25 @@ import info.novatec.inspectit.storage.serializer.impl.CustomCompatibleFieldSeria
 import info.novatec.inspectit.storage.serializer.impl.SerializationManager;
 import info.novatec.inspectit.storage.serializer.impl.ServerStatusSerializer;
 import info.novatec.inspectit.storage.serializer.schema.ClassSchemaManager;
+import rocks.cta.api.core.callables.HTTPMethod;
+import rocks.cta.api.core.callables.TimedCallable;
 
+import org.diagnoseit.spike.result.AffectedNodeData;
+import org.diagnoseit.spike.result.AntipatternInstance;
+import org.diagnoseit.spike.result.CauseExecutionType;
+import org.diagnoseit.spike.result.GenericProblemDescriptionText;
+import org.diagnoseit.spike.result.ProblemInstance;
+import org.diagnoseit.spike.result.ProblemInstanceID;
+import org.diagnoseit.spike.result.ProblemOccurrence;
+import org.diagnoseit.spike.result.antipatterns.Nplus1AntipatternInstance;
+import org.diagnoseit.spike.traceservices.aggregation.AbstractAggregatedTimedCallable;
+import org.diagnoseit.spike.traceservices.aggregation.AggregatedBusinessTransaction;
+import org.diagnoseit.spike.traceservices.aggregation.AggregatedDatabaseInvocation;
+import org.diagnoseit.spike.traceservices.aggregation.AggregatedHTTPRequestProcessing;
+import org.diagnoseit.spike.traceservices.aggregation.AggregatedMethodInvocation;
+import org.diagnoseit.spike.traceservices.aggregation.AggregatedRemoteInvocation;
+import org.diagnoseit.spike.traceservices.aggregation.NumericStatistics;
+import org.diagnoseit.spike.traceservices.aggregation.Signature;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.stereotype.Component;
@@ -346,6 +364,29 @@ public class SerializationManagerPostProcessor implements BeanPostProcessor {
 		kryo.register(ListSendingStrategyConfig.class, new FieldSerializer<ListSendingStrategyConfig>(kryo, ListSendingStrategyConfig.class), nextRegistrationId++);
 		kryo.register(SimpleBufferStrategyConfig.class, new FieldSerializer<SimpleBufferStrategyConfig>(kryo, SimpleBufferStrategyConfig.class), nextRegistrationId++);
 		kryo.register(SizeBufferStrategyConfig.class, new FieldSerializer<SizeBufferStrategyConfig>(kryo, SizeBufferStrategyConfig.class), nextRegistrationId++);
+		
+		// added with diagnoseIT spike integration
+		kryo.register(ProblemInstance.class, new FieldSerializer<ProblemInstance>(kryo, ProblemInstance.class));
+		kryo.register(ProblemInstanceID.class, new FieldSerializer<ProblemInstanceID>(kryo, ProblemInstanceID.class));
+		kryo.register(AbstractAggregatedTimedCallable.class, new FieldSerializer<AbstractAggregatedTimedCallable<? extends TimedCallable>>(kryo, AbstractAggregatedTimedCallable.class));
+
+		kryo.register(AggregatedDatabaseInvocation.class, new FieldSerializer<AggregatedDatabaseInvocation>(kryo, AggregatedDatabaseInvocation.class));
+		kryo.register(AggregatedHTTPRequestProcessing.class, new FieldSerializer<AggregatedHTTPRequestProcessing>(kryo, AggregatedHTTPRequestProcessing.class));
+		kryo.register(AggregatedMethodInvocation.class, new FieldSerializer<AggregatedMethodInvocation>(kryo, AggregatedMethodInvocation.class));
+		kryo.register(Signature.class, new FieldSerializer<Signature>(kryo, Signature.class));
+		kryo.register(AggregatedRemoteInvocation.class, new FieldSerializer<AggregatedRemoteInvocation>(kryo, AggregatedRemoteInvocation.class));
+		kryo.register(AggregatedBusinessTransaction.class, new FieldSerializer<AggregatedBusinessTransaction>(kryo, AggregatedBusinessTransaction.class));
+		
+		
+		kryo.register(NumericStatistics.class, new FieldSerializer<NumericStatistics<? extends Number>>(kryo, NumericStatistics.class));
+		kryo.register(CauseExecutionType.class, new EnumSerializer(CauseExecutionType.class));
+		kryo.register(HTTPMethod.class, new EnumSerializer(HTTPMethod.class));
+		kryo.register(AffectedNodeData.class, new FieldSerializer<AffectedNodeData>(kryo, AffectedNodeData.class));
+		kryo.register(ProblemOccurrence.class, new FieldSerializer<ProblemOccurrence>(kryo, ProblemOccurrence.class));
+		kryo.register(GenericProblemDescriptionText.class, new FieldSerializer<GenericProblemDescriptionText>(kryo, GenericProblemDescriptionText.class));
+		
+		kryo.register(AntipatternInstance.class, new FieldSerializer<AntipatternInstance>(kryo, AntipatternInstance.class));
+		kryo.register(Nplus1AntipatternInstance.class, new FieldSerializer<Nplus1AntipatternInstance>(kryo, Nplus1AntipatternInstance.class));
 	}
 
 }

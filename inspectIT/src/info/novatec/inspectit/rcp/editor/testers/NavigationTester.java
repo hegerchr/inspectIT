@@ -7,6 +7,7 @@ import info.novatec.inspectit.communication.data.InvocationAwareData;
 import info.novatec.inspectit.communication.data.InvocationSequenceData;
 import info.novatec.inspectit.communication.data.SqlStatementData;
 import info.novatec.inspectit.communication.data.TimerData;
+import info.novatec.inspectit.rcp.diagnoseit.overview.DITResultProblemInstance;
 import info.novatec.inspectit.rcp.editor.root.AbstractRootEditor;
 import info.novatec.inspectit.rcp.model.SensorTypeEnum;
 import info.novatec.inspectit.rcp.repository.RepositoryDefinition;
@@ -91,6 +92,25 @@ public class NavigationTester extends PropertyTester {
 				if (selectedObject instanceof InvocationSequenceData) {
 					return null != ((InvocationSequenceData) selectedObject).getSqlStatementData();
 				} else if (selectedObject instanceof SqlStatementData) {
+					return true;
+				}
+			}
+		} else if ("canExecuteDiagnoseIT".equals(property)) {
+			if (receiver instanceof StructuredSelection) {
+				StructuredSelection selection = (StructuredSelection) receiver;
+				Object selectedObject = selection.getFirstElement();
+				if (selectedObject instanceof InvocationSequenceData) {
+					return true;
+				}
+			}
+		} else if ("canNavigateToAffectedInvocationSequences".equals(property)) {
+			if (receiver instanceof StructuredSelection) {
+				StructuredSelection selection = (StructuredSelection) receiver;
+				if (selection.size() != 1) {
+					return false;
+				}
+				Object selectedObject = selection.getFirstElement();
+				if (selectedObject instanceof DITResultProblemInstance) {
 					return true;
 				}
 			}

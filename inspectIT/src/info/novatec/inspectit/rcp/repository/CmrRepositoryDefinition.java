@@ -3,6 +3,7 @@ package info.novatec.inspectit.rcp.repository;
 import info.novatec.inspectit.cmr.service.IBusinessContextManagementService;
 import info.novatec.inspectit.cmr.service.ICmrManagementService;
 import info.novatec.inspectit.cmr.service.IConfigurationInterfaceService;
+import info.novatec.inspectit.cmr.service.IDITResultsAccessService;
 import info.novatec.inspectit.cmr.service.IExceptionDataAccessService;
 import info.novatec.inspectit.cmr.service.IGlobalDataAccessService;
 import info.novatec.inspectit.cmr.service.IHttpTimerDataAccessService;
@@ -190,6 +191,11 @@ public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrReposi
 	private final IHttpTimerDataAccessService httpTimerDataAccessService;
 
 	/**
+	 * The http timer data access service.
+	 */
+	private IDITResultsAccessService diagnoseITResultsAccessService;
+
+	/**
 	 * The {@link IGlobalDataAccessService}.
 	 */
 	private final IGlobalDataAccessService globalDataAccessService;
@@ -254,6 +260,7 @@ public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrReposi
 		invocationDataAccessService = cmrServiceProvider.getInvocationDataAccessService(this);
 		exceptionDataAccessService = cmrServiceProvider.getExceptionDataAccessService(this);
 		httpTimerDataAccessService = cmrServiceProvider.getHttpTimerDataAccessService(this);
+		diagnoseITResultsAccessService = cmrServiceProvider.getDiagnoseITResultsAccessService(this);
 		cmrManagementService = cmrServiceProvider.getCmrManagementService(this);
 		timerDataAccessService = cmrServiceProvider.getTimerDataAccessService(this);
 		globalDataAccessService = cmrServiceProvider.getGlobalDataAccessService(this);
@@ -359,6 +366,14 @@ public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrReposi
 	@Override
 	public IJmxDataAccessService getJmxDataAccessService() {
 		return jmxDataAccessService;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public IDITResultsAccessService getDiagnoseITResultsAccessService() {
+		return diagnoseITResultsAccessService;
 	}
 
 	/**

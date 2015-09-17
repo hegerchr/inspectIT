@@ -28,6 +28,10 @@
 		<!-- Using Hamcrest matchers in Validators -->
 		<dependency org="org.hamcrest" name="info.novatec.hamcrest-all" rev="1.3" conf="prod->default" />
 		
+		<!-- diagnoseIT dependencies -->
+		<dependency org="rocks.cta" name="cta.api" rev="0.2.0-SNAPSHOT" conf="prod->default" />
+		<dependency org="diagnoseit.spike" name="trace.services" rev="0.2.0-SNAPSHOT" conf="prod->default" />
+		
 		<!-- Test -->
 		<!-- Test NG should be on the build path via the Eclipse plug-in -->
 		<dependency org="org.mockito" name="mockito-core" rev="1.9.0" conf="test->default" />

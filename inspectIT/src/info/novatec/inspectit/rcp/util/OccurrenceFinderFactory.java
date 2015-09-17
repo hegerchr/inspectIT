@@ -1,5 +1,6 @@
 package info.novatec.inspectit.rcp.util;
 
+import info.novatec.inspectit.communication.DefaultData;
 import info.novatec.inspectit.communication.MethodSensorData;
 import info.novatec.inspectit.communication.data.AggregatedTimerData;
 import info.novatec.inspectit.communication.data.ExceptionSensorData;

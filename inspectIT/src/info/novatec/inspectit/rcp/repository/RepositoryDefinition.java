@@ -2,6 +2,7 @@ package info.novatec.inspectit.rcp.repository;
 
 import info.novatec.inspectit.cmr.service.IBusinessContextManagementService;
 import info.novatec.inspectit.cmr.service.ICachedDataService;
+import info.novatec.inspectit.cmr.service.IDITResultsAccessService;
 import info.novatec.inspectit.cmr.service.IExceptionDataAccessService;
 import info.novatec.inspectit.cmr.service.IGlobalDataAccessService;
 import info.novatec.inspectit.cmr.service.IHttpTimerDataAccessService;
@@ -80,6 +81,13 @@ public interface RepositoryDefinition {
 	 * @return The http timer data access service.
 	 */
 	IHttpTimerDataAccessService getHttpTimerDataAccessService();
+	
+	/**
+	 * Returns the diagnoseIT results access service for this repository definition.
+	 * 
+	 * @return The diagnoseIT results access service.
+	 */
+	IDITResultsAccessService getDiagnoseITResultsAccessService();
 
 	/**
 	 * Returns the {@link IGlobalDataAccessService}.

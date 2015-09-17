@@ -40,8 +40,7 @@
 	</test>
 	<test name="CmrProcessors">
 		<classes>
-			<class
-				name="info.novatec.inspectit.cmr.processor.impl.CmrDataProcessorsTest" />
+			<class name="info.novatec.inspectit.cmr.processor.impl.CmrDataProcessorsTest" />
 		</classes>
 	</test>
 	<test name="Storage">

@@ -4,6 +4,7 @@ import info.novatec.inspectit.ci.BusinessContextDefinition;
 import info.novatec.inspectit.cmr.configuration.business.IBusinessContextDefinition;
 import info.novatec.inspectit.cmr.model.PlatformIdent;
 import info.novatec.inspectit.cmr.service.IBusinessContextManagementService;
+import info.novatec.inspectit.cmr.service.IDITResultsAccessService;
 import info.novatec.inspectit.cmr.service.IExceptionDataAccessService;
 import info.novatec.inspectit.cmr.service.IGlobalDataAccessService;
 import info.novatec.inspectit.cmr.service.IHttpTimerDataAccessService;
@@ -85,6 +86,8 @@ public class StorageRepositoryDefinition implements RepositoryDefinition {
 	 * {@link IHttpTimerDataAccessService}.
 	 */
 	private IHttpTimerDataAccessService httpTimerDataAccessService;
+
+	private IDITResultsAccessService ditResultsAccessService;
 
 	/**
 	 * {@link IBusinessContextDefinition}.
@@ -197,6 +200,14 @@ public class StorageRepositoryDefinition implements RepositoryDefinition {
 	public IBusinessContextManagementService getBusinessContextMangementService() {
 		return businessContextService;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public IDITResultsAccessService getDiagnoseITResultsAccessService() {
+		return ditResultsAccessService;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -212,6 +223,9 @@ public class StorageRepositoryDefinition implements RepositoryDefinition {
 		httpTimerDataAccessService = storageServiceProvider.createStorageHttpTimerDataAccessService(this, localStorageData, (IStorageTreeComponent<HttpTimerData>) indexingTree);
 		jmxDataAccessService = storageServiceProvider.createStorageJmxDataAccessService(this, localStorageData, (IStorageTreeComponent<JmxSensorValueData>) indexingTree);
 		businessContextService = storageServiceProvider.createStorageBusinessContextService(this, localStorageData, (IStorageTreeComponent<DefaultData>) indexingTree, businessContextDefinition);
+		if (cmrRepositoryDefinition != null) {
+			ditResultsAccessService = storageServiceProvider.createStorageDITResultsAccessService(this, localStorageData);
+		}
 		// for storage we use the regular cached data service because ids can never change
 		cachedDataService = new CachedDataService(globalDataAccessService, businessContextService);
 	}

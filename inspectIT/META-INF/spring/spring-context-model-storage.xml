@@ -67,6 +67,8 @@
 
 	<bean id="storageBusinessContextService" class="info.novatec.inspectit.rcp.repository.service.storage.StorageBusinessContextService" scope="prototype" lazy-init="true" />
 	
+	<bean id="storageDITResultsAccessService" class="info.novatec.inspectit.rcp.repository.service.storage.StorageDITResultsAccessService" scope="prototype" lazy-init="true" />
+
 	<!-- add the provider here directly -->
 
 	<bean id="storageServiceProvider" class="info.novatec.inspectit.rcp.repository.service.storage.StorageServiceProvider">
@@ -78,6 +80,7 @@
 		<lookup-method name="createStorageGlobalDataAccessService" bean="storageGlobalDataAccessService" />
 		<lookup-method name="createStorageJmxDataAccessService" bean="storageJmxDataAccessService" />
 		<lookup-method name="createStorageBusinessContextService" bean="storageBusinessContextService" />
+		<lookup-method name="createStorageDITResultsAccessService" bean="storageDITResultsAccessService" />
 	</bean>
 
 	<bean id="IOExecutorService" class="info.novatec.inspectit.storage.util.ExecutorServiceFactory">

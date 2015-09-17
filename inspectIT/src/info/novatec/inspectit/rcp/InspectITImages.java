@@ -150,6 +150,10 @@ public interface InspectITImages {
 	String IMG_TOOL = InspectITConstants.ICON_PATH_ECLIPSE + "build.gif";
 	String IMG_TRANSFORM = InspectITConstants.ICON_PATH_ECLIPSE + "transform.gif";
 	String IMG_USER = InspectITConstants.ICON_PATH_ECLIPSE + "user.gif";
+	String IMG_METHOD_PUBLIC_SMALL = InspectITConstants.ICON_PATH_SELFMADE + "methpub_obj_small.gif";
+	String IMG_METHOD_PROTECTED_SMALL = InspectITConstants.ICON_PATH_SELFMADE + "methpro_obj_small.gif";
+	String IMG_METHOD_DEFAULT_SMALL = InspectITConstants.ICON_PATH_SELFMADE + "methdef_obj_small.gif";
+	String IMG_METHOD_PRIVATE_SMALL = InspectITConstants.ICON_PATH_SELFMADE + "methpri_obj_small.gif";
 
 	// Fugue set - license Creative Commons v3.0
 	String IMG_ADDRESSBOOK = InspectITConstants.ICON_PATH_FUGUE + "address-book.png";
@@ -180,6 +184,23 @@ public interface InspectITImages {
 	String IMG_BUSINESS_TRANSACTION_GREY = InspectITConstants.ICON_PATH_FUGUE + "application-dock-grey.png";
 	String IMG_PUZZLE = InspectITConstants.ICON_PATH_FUGUE + "puzzle.png";
 	String IMG_PUZZLE_GREY = InspectITConstants.ICON_PATH_FUGUE + "puzzle-grey.png";
+	
+	// diagnoseIT images
+	String IMG_DIAGNOSEIT = InspectITConstants.ICON_PATH_SELFMADE + "diagnoseIT.gif";
+	String IMG_DIAGNOSEIT_SEQUENCE = InspectITConstants.ICON_PATH_SELFMADE + "diagnoseIT_sequence.gif";
+	String IMG_DIAGNOSEIT_BT = InspectITConstants.ICON_PATH_SELFMADE + "diagnoseIT_BT.gif";
+	String IMG_DIAGNOSEIT_EP = InspectITConstants.ICON_PATH_SELFMADE + "diagnoseIT_EP.gif";
+	String IMG_DIAGNOSEIT_PC = InspectITConstants.ICON_PATH_SELFMADE + "diagnoseIT_PC.gif";
+	String IMG_DIAGNOSEIT_C = InspectITConstants.ICON_PATH_SELFMADE + "diagnoseIT_C.gif";
+	
+	String IMG_DIAGNOSEIT_BT_OVERLAY = InspectITConstants.ICON_PATH_SELFMADE + "diagnoseIT_BT_overlay.gif";
+	String IMG_DIAGNOSEIT_EP_OVERLAY = InspectITConstants.ICON_PATH_SELFMADE + "diagnoseIT_EP_overlay.gif";
+	String IMG_DIAGNOSEIT_PC_OVERLAY = InspectITConstants.ICON_PATH_SELFMADE + "diagnoseIT_PC_overlay.gif";
+	String IMG_DIAGNOSEIT_C_OVERLAY = InspectITConstants.ICON_PATH_SELFMADE + "diagnoseIT_C_overlay.gif";
+	
+
+	
+	
 	
 	// labels just pointing to existing ones
 	String IMG_ASSIGNEE_LABEL_ICON = IMG_USER;

@@ -63,7 +63,7 @@ public interface TreeInputController extends SubViewClassificationController {
 	 *            The event object.
 	 */
 	void doubleClick(DoubleClickEvent event);
-
+	
 	/**
 	 * Generates and returns the input for the tree. Returning <code>null</code> is possible and
 	 * indicates most of the time that there is no default list or object to display in the table.
