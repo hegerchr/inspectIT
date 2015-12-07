@@ -50,6 +50,7 @@ import info.novatec.inspectit.exception.BusinessException;
 import info.novatec.inspectit.exception.RemoteException;
 import info.novatec.inspectit.exception.TechnicalException;
 import info.novatec.inspectit.exception.enumeration.AgentManagementErrorCodeEnum;
+import info.novatec.inspectit.exception.enumeration.BusinessContextErrorCodeEnum;
 import info.novatec.inspectit.exception.enumeration.ConfigurationInterfaceErrorCodeEnum;
 import info.novatec.inspectit.exception.enumeration.StorageErrorCodeEnum;
 import info.novatec.inspectit.instrumentation.classcache.AnnotationType;
@@ -347,6 +348,9 @@ public class SerializationManager implements ISerializer, IKryoProvider, Initial
 		
 		// added with INSPECTIT-1849
 		kryo.register(HttpInfo.class, new CustomCompatibleFieldSerializer<HttpInfo>(kryo, HttpInfo.class, schemaManager));
+		
+		// added with INSPECTIT-1804, INSPECTIT-1807
+		kryo.register(BusinessContextErrorCodeEnum.class, new EnumSerializer(BusinessContextErrorCodeEnum.class));
 
 		// added with INSPECTIT-1919
 		kryo.register(AgentConfiguration.class, new FieldSerializer<AgentConfiguration>(kryo, AgentConfiguration.class));

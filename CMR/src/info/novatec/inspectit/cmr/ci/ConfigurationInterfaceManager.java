@@ -2,6 +2,8 @@ package info.novatec.inspectit.cmr.ci;
 
 import info.novatec.inspectit.ci.AgentMapping;
 import info.novatec.inspectit.ci.AgentMappings;
+import info.novatec.inspectit.cmr.configuration.business.IBusinessContextDefinition;
+import info.novatec.inspectit.ci.BusinessContextDefinition;
 import info.novatec.inspectit.ci.Environment;
 import info.novatec.inspectit.ci.Profile;
 import info.novatec.inspectit.cmr.ci.event.AgentMappingsUpdateEvent;
@@ -10,6 +12,8 @@ import info.novatec.inspectit.cmr.ci.event.ProfileUpdateEvent;
 import info.novatec.inspectit.cmr.jaxb.JAXBTransformator;
 import info.novatec.inspectit.cmr.util.Utils;
 import info.novatec.inspectit.exception.BusinessException;
+import info.novatec.inspectit.exception.TechnicalException;
+import info.novatec.inspectit.exception.enumeration.BusinessContextErrorCodeEnum;
 import info.novatec.inspectit.exception.enumeration.ConfigurationInterfaceErrorCodeEnum;
 import info.novatec.inspectit.spring.logger.Log;
 
@@ -89,6 +93,11 @@ public class ConfigurationInterfaceManager {
 	 * Currently used agent mapping.
 	 */
 	private final AtomicReference<AgentMappings> agentMappingsReference = new AtomicReference<>();
+
+	/**
+	 * Business context definition.
+	 */
+	private IBusinessContextDefinition businessContextDefinition;
 
 	/**
 	 * Returns all existing profiles.
@@ -372,6 +381,29 @@ public class ConfigurationInterfaceManager {
 		return agentMappings;
 	}
 
+	public IBusinessContextDefinition getBusinessconContextDefinition() {
+		return businessContextDefinition;
+	}
+
+	/**
+	 * Updates and stores new definition of the business context.
+	 *
+	 * @param businessContextDefinition
+	 *            New {@link IBusinessContextDefinition} to use.
+	 * @throws BusinessException
+	 *             If updating business context fails.
+	 */
+	public synchronized void updateBusinessContextDefinition(IBusinessContextDefinition businessContextDefinition) throws BusinessException {
+		try {
+			this.businessContextDefinition = businessContextDefinition;
+			saveBusinessContext(businessContextDefinition);
+		} catch (JAXBException e) {
+			throw new TechnicalException("Update business context.", BusinessContextErrorCodeEnum.JAXB_MARSHALLING_OR_DEMARSHALLING_FAILED, e);
+		} catch (IOException e) {
+			throw new TechnicalException("Update business context.", BusinessContextErrorCodeEnum.INPUT_OUTPUT_OPERATION_FAILED, e);
+		}
+	}
+
 	/**
 	 * Internal process of updating the profile.
 	 *
@@ -558,6 +590,20 @@ public class ConfigurationInterfaceManager {
 	}
 
 	/**
+	 * Saves the passed {@link IBusinessContextDefinition}.
+	 *
+	 * @param businessContextDefinition
+	 *            {@link IBusinessContextDefinition} to save
+	 * @throws IOException
+	 *             If {@link IOException} occurs.
+	 * @throws JAXBException
+	 *             If {@link JAXBException} occurs. If saving fails.
+	 */
+	private void saveBusinessContext(IBusinessContextDefinition businessContextDefinition) throws JAXBException, IOException {
+		transformator.marshall(pathResolver.getBusinessContextFilePath(), businessContextDefinition, getRelativeToSchemaPath(pathResolver.getDefaultCiPath()).toString());
+	}
+
+	/**
 	 * Returns given path relative to schema part.
 	 *
 	 * @param path
@@ -578,6 +624,7 @@ public class ConfigurationInterfaceManager {
 		loadExistingProfiles();
 		loadExistingEnvironments();
 		loadAgentMappings();
+		loadBusinessContextDefinition();
 	}
 
 	/**
@@ -707,6 +754,32 @@ public class ConfigurationInterfaceManager {
 				log.error("Error save Configuration interface agent mappings file. File path: " + path.toString() + ".", e);
 			}
 		}
+	}
+
+	/**
+	 * Loads the business context definition if it is not already loaded. If successfully loaded
+	 * definition will be placed in the {@link #businessContextDefinition} field.
+	 */
+	private void loadBusinessContextDefinition() {
+		log.info("|-Loading the business context definition");
+		Path path = pathResolver.getBusinessContextFilePath();
+		if (Files.notExists(path)) {
+			businessContextDefinition = new BusinessContextDefinition();
+		} else {
+			try {
+				businessContextDefinition = transformator.unmarshall(path, pathResolver.getSchemaPath(), BusinessContextDefinition.class);
+			} catch (JAXBException | IOException | SAXException e) {
+				businessContextDefinition = new BusinessContextDefinition();
+				log.error("Error loading Configuration interface business context file. File path: " + path.toString() + ".", e);
+			}
+		}
+
+		try {
+			saveBusinessContext(businessContextDefinition);
+		} catch (JAXBException | IOException e) {
+			log.error("Error saving Configuration interface business context file. File path: " + path.toString() + ".", e);
+		}
+
 	}
 
 	/**

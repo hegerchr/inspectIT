@@ -41,9 +41,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * Environment definition. Defines sending & buffer strategies, sensors and their options. Also has
  * a list of profiles to include.
- * 
+ *
  * @author Ivan Senic
- * 
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "environment")
@@ -71,7 +71,7 @@ public class Environment {
 	 * Revision. Server for version control and updating control.
 	 */
 	@XmlAttribute(name = "revision")
-	private int revision = 1;
+	private Integer revision = 1;
 
 	/**
 	 * Configuration for the sending strategy.
@@ -145,7 +145,7 @@ public class Environment {
 
 	/**
 	 * Gets {@link #id}.
-	 * 
+	 *
 	 * @return {@link #id}
 	 */
 	public String getId() {
@@ -154,7 +154,7 @@ public class Environment {
 
 	/**
 	 * Sets {@link #id}.
-	 * 
+	 *
 	 * @param id
 	 *            New value for {@link #id}
 	 */
@@ -164,7 +164,7 @@ public class Environment {
 
 	/**
 	 * Gets {@link #name}.
-	 * 
+	 *
 	 * @return {@link #name}
 	 */
 	public String getName() {
@@ -173,7 +173,7 @@ public class Environment {
 
 	/**
 	 * Sets {@link #name}.
-	 * 
+	 *
 	 * @param name
 	 *            New value for {@link #name}
 	 */
@@ -183,7 +183,7 @@ public class Environment {
 
 	/**
 	 * Gets {@link #description}.
-	 * 
+	 *
 	 * @return {@link #description}
 	 */
 	public String getDescription() {
@@ -192,7 +192,7 @@ public class Environment {
 
 	/**
 	 * Sets {@link #description}.
-	 * 
+	 *
 	 * @param description
 	 *            New value for {@link #description}
 	 */
@@ -202,16 +202,16 @@ public class Environment {
 
 	/**
 	 * Gets {@link #revision}.
-	 * 
+	 *
 	 * @return {@link #revision}
 	 */
 	public int getRevision() {
-		return revision;
+		return null != revision ? revision : 1;
 	}
 
 	/**
 	 * Sets {@link #revision}.
-	 * 
+	 *
 	 * @param revision
 	 *            New value for {@link #revision}
 	 */
@@ -221,7 +221,7 @@ public class Environment {
 
 	/**
 	 * Gets {@link #sendingStrategyConfig}.
-	 * 
+	 *
 	 * @return {@link #sendingStrategyConfig}
 	 */
 	public IStrategyConfig getSendingStrategyConfig() {
@@ -230,7 +230,7 @@ public class Environment {
 
 	/**
 	 * Sets {@link #sendingStrategyConfig}.
-	 * 
+	 *
 	 * @param sendingStrategyConfig
 	 *            New value for {@link #sendingStrategyConfig}
 	 */
@@ -240,7 +240,7 @@ public class Environment {
 
 	/**
 	 * Gets {@link #bufferStrategyConfig}.
-	 * 
+	 *
 	 * @return {@link #bufferStrategyConfig}
 	 */
 	public IStrategyConfig getBufferStrategyConfig() {
@@ -249,7 +249,7 @@ public class Environment {
 
 	/**
 	 * Sets {@link #bufferStrategyConfig}.
-	 * 
+	 *
 	 * @param bufferStrategyConfig
 	 *            New value for {@link #bufferStrategyConfig}
 	 */
@@ -259,7 +259,7 @@ public class Environment {
 
 	/**
 	 * Gets {@link #platformSensorConfigs}.
-	 * 
+	 *
 	 * @return {@link #platformSensorConfigs}
 	 */
 	public List<IPlatformSensorConfig> getPlatformSensorConfigs() {
@@ -268,7 +268,7 @@ public class Environment {
 
 	/**
 	 * Gets {@link #methodSensorConfigs}.
-	 * 
+	 *
 	 * @return {@link #methodSensorConfigs}
 	 */
 	public List<IMethodSensorConfig> getMethodSensorConfigs() {
@@ -277,7 +277,7 @@ public class Environment {
 
 	/**
 	 * Gets {@link #exceptionSensorConfig}.
-	 * 
+	 *
 	 * @return {@link #exceptionSensorConfig}
 	 */
 	public IExceptionSensorConfig getExceptionSensorConfig() {
@@ -286,7 +286,7 @@ public class Environment {
 
 	/**
 	 * Gets {@link #profileIds}.
-	 * 
+	 *
 	 * @return {@link #profileIds}
 	 */
 	public Set<String> getProfileIds() {
@@ -295,7 +295,7 @@ public class Environment {
 
 	/**
 	 * Sets {@link #profileIds}.
-	 * 
+	 *
 	 * @param profileIds
 	 *            New value for {@link #profileIds}
 	 */
@@ -305,7 +305,7 @@ public class Environment {
 
 	/**
 	 * Gets {@link #classLoadingDelegation}.
-	 * 
+	 *
 	 * @return {@link #classLoadingDelegation}
 	 */
 	public boolean isClassLoadingDelegation() {
@@ -314,7 +314,7 @@ public class Environment {
 
 	/**
 	 * Sets {@link #classLoadingDelegation}.
-	 * 
+	 *
 	 * @param classLoadingDelegation
 	 *            New value for {@link #classLoadingDelegation}
 	 */
@@ -417,7 +417,7 @@ public class Environment {
 		} else if (!profileIds.equals(other.profileIds)) {
 			return false;
 		}
-		if (revision != other.revision) {
+		if (getRevision() != other.getRevision()) {
 			return false;
 		}
 		if (sendingStrategyConfig == null) {

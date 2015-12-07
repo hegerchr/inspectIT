@@ -19,9 +19,9 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 
 /**
  * Class for method sensor assignment.
- * 
+ *
  * @author Ivan Senic
- * 
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlSeeAlso({ TimerMethodSensorAssignment.class })
@@ -50,31 +50,31 @@ public class MethodSensorAssignment extends AbstractClassSensorAssignment<IMetho
 	 * If is constructor.
 	 */
 	@XmlAttribute(name = "constructor")
-	private boolean constructor;
+	private Boolean constructor = Boolean.FALSE;
 
 	/**
 	 * If public methods should be included. By default <code>true</code>.
 	 */
 	@XmlAttribute(name = "public-mod")
-	private boolean publicModifier = true;
+	private Boolean publicModifier = Boolean.TRUE;
 
 	/**
 	 * If protected methods should be included. By default <code>true</code>.
 	 */
 	@XmlAttribute(name = "protected-mod")
-	private boolean protectedModifier = true;
+	private Boolean protectedModifier = Boolean.TRUE;
 
 	/**
 	 * If private methods should be included. By default <code>true</code>.
 	 */
 	@XmlAttribute(name = "private-mod")
-	private boolean privateModifier = true;
+	private Boolean privateModifier = Boolean.TRUE;
 
 	/**
 	 * If default methods should be included. By default <code>true</code>.
 	 */
 	@XmlAttribute(name = "default-mod")
-	private boolean defaultModifier = true;
+	private Boolean defaultModifier = Boolean.TRUE;
 
 	/**
 	 * No-args constructor.
@@ -84,7 +84,7 @@ public class MethodSensorAssignment extends AbstractClassSensorAssignment<IMetho
 
 	/**
 	 * Default constructor.
-	 * 
+	 *
 	 * @param sensorConfig
 	 *            Method sensor config class begin assigned.
 	 */
@@ -118,7 +118,7 @@ public class MethodSensorAssignment extends AbstractClassSensorAssignment<IMetho
 
 	/**
 	 * Gets {@link #methodName}.
-	 * 
+	 *
 	 * @return {@link #methodName}
 	 */
 	public String getMethodName() {
@@ -127,7 +127,7 @@ public class MethodSensorAssignment extends AbstractClassSensorAssignment<IMetho
 
 	/**
 	 * Sets {@link #methodName}.
-	 * 
+	 *
 	 * @param methodName
 	 *            New value for {@link #methodName}
 	 */
@@ -137,7 +137,7 @@ public class MethodSensorAssignment extends AbstractClassSensorAssignment<IMetho
 
 	/**
 	 * Gets {@link #parameters}.
-	 * 
+	 *
 	 * @return {@link #parameters}
 	 */
 	public List<String> getParameters() {
@@ -146,7 +146,7 @@ public class MethodSensorAssignment extends AbstractClassSensorAssignment<IMetho
 
 	/**
 	 * Sets {@link #parameters}.
-	 * 
+	 *
 	 * @param parameters
 	 *            New value for {@link #parameters}
 	 */
@@ -156,16 +156,16 @@ public class MethodSensorAssignment extends AbstractClassSensorAssignment<IMetho
 
 	/**
 	 * Gets {@link #constructor}.
-	 * 
+	 *
 	 * @return {@link #constructor}
 	 */
 	public boolean isConstructor() {
-		return constructor;
+		return null != constructor ? constructor : false;
 	}
 
 	/**
 	 * Sets {@link #constructor}.
-	 * 
+	 *
 	 * @param constructor
 	 *            New value for {@link #constructor}
 	 */
@@ -175,16 +175,16 @@ public class MethodSensorAssignment extends AbstractClassSensorAssignment<IMetho
 
 	/**
 	 * Gets {@link #publicModifier}.
-	 * 
+	 *
 	 * @return {@link #publicModifier}
 	 */
 	public boolean isPublicModifier() {
-		return publicModifier;
+		return null != publicModifier ? publicModifier : false;
 	}
 
 	/**
 	 * Sets {@link #publicModifier}.
-	 * 
+	 *
 	 * @param publicModifier
 	 *            New value for {@link #publicModifier}
 	 */
@@ -194,16 +194,16 @@ public class MethodSensorAssignment extends AbstractClassSensorAssignment<IMetho
 
 	/**
 	 * Gets {@link #protectedModifier}.
-	 * 
+	 *
 	 * @return {@link #protectedModifier}
 	 */
 	public boolean isProtectedModifier() {
-		return protectedModifier;
+		return null != protectedModifier ? protectedModifier : false;
 	}
 
 	/**
 	 * Sets {@link #protectedModifier}.
-	 * 
+	 *
 	 * @param protectedModifier
 	 *            New value for {@link #protectedModifier}
 	 */
@@ -213,16 +213,16 @@ public class MethodSensorAssignment extends AbstractClassSensorAssignment<IMetho
 
 	/**
 	 * Gets {@link #privateModifier}.
-	 * 
+	 *
 	 * @return {@link #privateModifier}
 	 */
 	public boolean isPrivateModifier() {
-		return privateModifier;
+		return null != privateModifier ? privateModifier : false;
 	}
 
 	/**
 	 * Sets {@link #privateModifier}.
-	 * 
+	 *
 	 * @param privateModifier
 	 *            New value for {@link #privateModifier}
 	 */
@@ -232,16 +232,16 @@ public class MethodSensorAssignment extends AbstractClassSensorAssignment<IMetho
 
 	/**
 	 * Gets {@link #defaultModifier}.
-	 * 
+	 *
 	 * @return {@link #defaultModifier}
 	 */
 	public boolean isDefaultModifier() {
-		return defaultModifier;
+		return null != defaultModifier ? defaultModifier : false;
 	}
 
 	/**
 	 * Sets {@link #defaultModifier}.
-	 * 
+	 *
 	 * @param defaultModifier
 	 *            New value for {@link #defaultModifier}
 	 */
@@ -256,13 +256,13 @@ public class MethodSensorAssignment extends AbstractClassSensorAssignment<IMetho
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + (constructor ? 1231 : 1237);
-		result = prime * result + (defaultModifier ? 1231 : 1237);
+		result = prime * result + (isConstructor() ? 1231 : 1237);
+		result = prime * result + (isDefaultModifier() ? 1231 : 1237);
 		result = prime * result + ((methodName == null) ? 0 : methodName.hashCode());
 		result = prime * result + ((parameters == null) ? 0 : parameters.hashCode());
-		result = prime * result + (privateModifier ? 1231 : 1237);
-		result = prime * result + (protectedModifier ? 1231 : 1237);
-		result = prime * result + (publicModifier ? 1231 : 1237);
+		result = prime * result + (isPrivateModifier() ? 1231 : 1237);
+		result = prime * result + (isProtectedModifier() ? 1231 : 1237);
+		result = prime * result + (isPublicModifier() ? 1231 : 1237);
 		result = prime * result + ((sensorConfig == null) ? 0 : sensorConfig.getName().hashCode());
 		return result;
 	}
@@ -282,10 +282,10 @@ public class MethodSensorAssignment extends AbstractClassSensorAssignment<IMetho
 			return false;
 		}
 		MethodSensorAssignment other = (MethodSensorAssignment) obj;
-		if (constructor != other.constructor) {
+		if (isConstructor() != other.isConstructor()) {
 			return false;
 		}
-		if (defaultModifier != other.defaultModifier) {
+		if (isDefaultModifier() != other.isDefaultModifier()) {
 			return false;
 		}
 		if (methodName == null) {
@@ -302,13 +302,13 @@ public class MethodSensorAssignment extends AbstractClassSensorAssignment<IMetho
 		} else if (!parameters.equals(other.parameters)) {
 			return false;
 		}
-		if (privateModifier != other.privateModifier) {
+		if (isPrivateModifier() != other.isPrivateModifier()) {
 			return false;
 		}
-		if (protectedModifier != other.protectedModifier) {
+		if (isProtectedModifier() != other.isProtectedModifier()) {
 			return false;
 		}
-		if (publicModifier != other.publicModifier) {
+		if (isPublicModifier() != other.isPublicModifier()) {
 			return false;
 		}
 		if (sensorConfig.getName() == null) {

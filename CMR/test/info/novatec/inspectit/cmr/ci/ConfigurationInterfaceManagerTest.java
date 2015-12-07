@@ -91,6 +91,7 @@ public class ConfigurationInterfaceManagerTest extends TestBase {
 		when(pathResolver.getEnvironmentPath()).thenReturn(Paths.get(TEST_FOLDER).resolve(resolverHelper.getEnvironmentPath()));
 		when(pathResolver.getProfilesPath()).thenReturn(Paths.get(TEST_FOLDER).resolve(resolverHelper.getProfilesPath()));
 		when(pathResolver.getSchemaPath()).thenReturn(Paths.get(TEST_FOLDER).resolve(resolverHelper.getSchemaPath()));
+		when(pathResolver.getBusinessContextFilePath()).thenReturn(Paths.get(TEST_FOLDER).resolve(resolverHelper.getBusinessContextFilePath()));
 		doAnswer(new Answer<Path>() {
 			@Override
 			public Path answer(InvocationOnMock invocation) throws Throwable {

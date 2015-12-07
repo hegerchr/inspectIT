@@ -38,19 +38,19 @@ public class TimerMethodSensorAssignment extends MethodSensorAssignment {
 	 * If it is charting.
 	 */
 	@XmlAttribute(name = "charting")
-	private boolean charting;
+	private Boolean charting = false;
 
 	/**
 	 * If it starts an invocation.
 	 */
 	@XmlAttribute(name = "starts-invocation")
-	private boolean startsInvocation;
+	private Boolean startsInvocation = false;
 
 	/**
 	 * Invocation min duration.
 	 */
 	@XmlAttribute(name = "min-invocation-duration")
-	private long minInvocationDuration;
+	private Long minInvocationDuration = 0L;
 
 	/**
 	 * List of context captures.
@@ -103,7 +103,7 @@ public class TimerMethodSensorAssignment extends MethodSensorAssignment {
 	 * @return {@link #charting}
 	 */
 	public boolean isCharting() {
-		return charting;
+		return null != charting ? charting : false;
 	}
 
 	/**
@@ -122,7 +122,7 @@ public class TimerMethodSensorAssignment extends MethodSensorAssignment {
 	 * @return {@link #startsInvocation}
 	 */
 	public boolean isStartsInvocation() {
-		return startsInvocation;
+		return null != startsInvocation ? startsInvocation : false;
 	}
 
 	/**
@@ -141,7 +141,7 @@ public class TimerMethodSensorAssignment extends MethodSensorAssignment {
 	 * @return {@link #minInvocationDuration}
 	 */
 	public long getMinInvocationDuration() {
-		return minInvocationDuration;
+		return null != minInvocationDuration ? minInvocationDuration : 0L;
 	}
 
 	/**
@@ -180,10 +180,10 @@ public class TimerMethodSensorAssignment extends MethodSensorAssignment {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + (charting ? 1231 : 1237);
+		result = prime * result + (isCharting() ? 1231 : 1237);
 		result = prime * result + ((contextCaptures == null) ? 0 : contextCaptures.hashCode());
-		result = prime * result + (int) (minInvocationDuration ^ (minInvocationDuration >>> 32));
-		result = prime * result + (startsInvocation ? 1231 : 1237);
+		result = prime * result + (int) (getMinInvocationDuration() ^ (getMinInvocationDuration() >>> 32));
+		result = prime * result + (isStartsInvocation() ? 1231 : 1237);
 		return result;
 	}
 
@@ -202,7 +202,7 @@ public class TimerMethodSensorAssignment extends MethodSensorAssignment {
 			return false;
 		}
 		TimerMethodSensorAssignment other = (TimerMethodSensorAssignment) obj;
-		if (charting != other.charting) {
+		if (isCharting() != other.isCharting()) {
 			return false;
 		}
 		if (contextCaptures == null) {
@@ -212,10 +212,10 @@ public class TimerMethodSensorAssignment extends MethodSensorAssignment {
 		} else if (!contextCaptures.equals(other.contextCaptures)) {
 			return false;
 		}
-		if (minInvocationDuration != other.minInvocationDuration) {
+		if (getMinInvocationDuration() != other.getMinInvocationDuration()) {
 			return false;
 		}
-		if (startsInvocation != other.startsInvocation) {
+		if (isStartsInvocation() != other.isStartsInvocation()) {
 			return false;
 		}
 		return true;
