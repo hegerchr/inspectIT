@@ -1,10 +1,12 @@
 package info.novatec.inspectit.rcp.repository;
 
 import info.novatec.inspectit.cmr.service.ICmrManagementService;
+import info.novatec.inspectit.cmr.service.IConfigurationInterfaceService;
 import info.novatec.inspectit.cmr.service.IExceptionDataAccessService;
 import info.novatec.inspectit.cmr.service.IGlobalDataAccessService;
 import info.novatec.inspectit.cmr.service.IHttpTimerDataAccessService;
 import info.novatec.inspectit.cmr.service.IInvocationDataAccessService;
+import info.novatec.inspectit.cmr.service.IJmxDataAccessService;
 import info.novatec.inspectit.cmr.service.IServerStatusService;
 import info.novatec.inspectit.cmr.service.IServerStatusService.ServerStatus;
 import info.novatec.inspectit.cmr.service.ISqlDataAccessService;
@@ -15,6 +17,7 @@ import info.novatec.inspectit.rcp.InspectIT;
 import info.novatec.inspectit.rcp.provider.ICmrRepositoryProvider;
 import info.novatec.inspectit.rcp.repository.service.RefreshEditorsCachedDataService;
 import info.novatec.inspectit.rcp.repository.service.cmr.CmrServiceProvider;
+import info.novatec.inspectit.version.VersionService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +30,7 @@ import java.util.Objects;
  * @author Dirk Maucher
  * @author Eduard Tudenhoefner
  * @author Matthias Huber
+ * @author Alfred Krauss
  * 
  */
 public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrRepositoryProvider {
@@ -183,11 +187,21 @@ public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrReposi
 	 * The {@link IGlobalDataAccessService}.
 	 */
 	private IGlobalDataAccessService globalDataAccessService;
+	
+	/**
+	 * The {@link IJmxDataAccessService}.
+	 */
+	private IJmxDataAccessService jmxDataAccessService;
 
 	/**
 	 * The storage service.
 	 */
 	private IStorageService storageService;
+
+	/**
+	 * The configuration interface service.
+	 */
+	private IConfigurationInterfaceService configurationInterfaceService;
 
 	/**
 	 * CMR repository change listeners.
@@ -233,6 +247,8 @@ public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrReposi
 		timerDataAccessService = cmrServiceProvider.getTimerDataAccessService(this);
 		globalDataAccessService = cmrServiceProvider.getGlobalDataAccessService(this);
 		storageService = cmrServiceProvider.getStorageService(this);
+		configurationInterfaceService = cmrServiceProvider.getConfigurationInterfaceService(this);
+		jmxDataAccessService = cmrServiceProvider.getJmxDataAccessService(this);
 
 		cachedDataService = new RefreshEditorsCachedDataService(globalDataAccessService, this);
 	}
@@ -308,6 +324,23 @@ public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrReposi
 	}
 
 	/**
+	 * Gets {@link #configurationInterfaceService}.
+	 * 
+	 * @return {@link #configurationInterfaceService}
+	 */
+	public IConfigurationInterfaceService getConfigurationInterfaceService() {
+		return configurationInterfaceService;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public IJmxDataAccessService getJmxDataAccessService() {
+		return jmxDataAccessService;
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -352,6 +385,7 @@ public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrReposi
 	/**
 	 * @return the name
 	 */
+	@Override
 	public String getName() {
 		return name;
 	}
@@ -397,10 +431,10 @@ public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrReposi
 			try {
 				return serverStatusService.getVersion();
 			} catch (Exception e) {
-				return IServerStatusService.VERSION_NOT_AVAILABLE;
+				return VersionService.UNKNOWN_VERSION;
 			}
 		} else {
-			return IServerStatusService.VERSION_NOT_AVAILABLE;
+			return VersionService.UNKNOWN_VERSION;
 		}
 	}
 
@@ -459,6 +493,7 @@ public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrReposi
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public CmrRepositoryDefinition getCmrRepositoryDefinition() {
 		return this;
 	}
@@ -530,5 +565,4 @@ public class CmrRepositoryDefinition implements RepositoryDefinition, ICmrReposi
 	public String toString() {
 		return "Repository definition :: Name=" + name + " IP=" + ip + " Port=" + port;
 	}
-
 }
