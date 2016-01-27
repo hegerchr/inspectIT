@@ -3,7 +3,6 @@ package info.novatec.inspectit.indexing.query.factory.impl;
 import info.novatec.inspectit.communication.data.AggregatedTimerData;
 import info.novatec.inspectit.communication.data.TimerData;
 import info.novatec.inspectit.indexing.IIndexQuery;
-import info.novatec.inspectit.indexing.query.factory.AbstractQueryFactory;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -13,27 +12,29 @@ import org.springframework.stereotype.Component;
 
 /**
  * Factory for all queries for the {@link TimerData}.
- * 
- * @author Ivan Senic
- * 
- * @param <E>
+ *
+ * @author Ivan Senic, Christoph Heger
+ *
  */
 @Component
-public class TimerDataQueryFactory<E extends IIndexQuery> extends AbstractQueryFactory<E> {
+public class TimerDataQueryFactory {
 
 	/**
 	 * Returns the query for aggregating the {@link TimerData}.
-	 * 
+	 *
+	 * @param <E>
+	 *            Query of type {@link IIndexQuery}.
+	 * @param query
+	 *            The query object to enrich.
 	 * @param timerData
 	 *            The template containing the platform id.
 	 * @param fromDate
 	 *            Date to include data from.
 	 * @param toDate
 	 *            Date to include data to.
-	 * @return Query object.
+	 * @return Enriched query object.
 	 */
-	public E getAggregatedTimerDataQuery(TimerData timerData, Date fromDate, Date toDate) {
-		E query = getIndexQueryProvider().getIndexQuery();
+	public <E extends IIndexQuery> E getAggregatedTimerDataQuery(E query, TimerData timerData, Date fromDate, Date toDate) {
 		query.setPlatformIdent(timerData.getPlatformIdent());
 		query.setMethodIdent(timerData.getMethodIdent());
 		ArrayList<Class<?>> searchedClasses = new ArrayList<Class<?>>();

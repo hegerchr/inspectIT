@@ -31,9 +31,9 @@ import uk.org.lidalia.sysoutslf4j.context.SysOutOverSLF4J;
 /**
  * Main class of the Central Measurement Repository. The main method is used to start the
  * application.
- * 
+ *
  * @author Patrice Bouillet
- * 
+ *
  */
 public final class CMR {
 
@@ -148,7 +148,7 @@ public final class CMR {
 
 	/**
 	 * Start function. Needed by Procrun.
-	 * 
+	 *
 	 * @param args
 	 *            The arguments.
 	 */
@@ -159,7 +159,7 @@ public final class CMR {
 
 	/**
 	 * Stop function. Needed by Procrun.
-	 * 
+	 *
 	 * @param args
 	 *            The arguments.
 	 */
@@ -219,7 +219,7 @@ public final class CMR {
 
 	/**
 	 * Main method of class.
-	 * 
+	 *
 	 * @param args
 	 *            The arguments.
 	 */
@@ -243,7 +243,7 @@ public final class CMR {
 
 	/**
 	 * Returns the spring bean factory.
-	 * 
+	 *
 	 * @return The spring bean factory.
 	 */
 	public static BeanFactory getBeanFactory() {
@@ -252,7 +252,7 @@ public final class CMR {
 
 	/**
 	 * Getter method for property <code>startedAsService</code>.
-	 * 
+	 *
 	 * @return startedAsService.
 	 */
 	public static boolean isStartedAsService() {

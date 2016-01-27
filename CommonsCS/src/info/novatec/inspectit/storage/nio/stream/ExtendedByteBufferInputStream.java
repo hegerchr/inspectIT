@@ -40,11 +40,11 @@ import org.springframework.stereotype.Component;
  * <p>
  * The stream uses {@link ByteBufferProvider} to get the buffers and will release the buffers on the
  * {@link #close()} method. It's a must to call a {@link #close()} after the stream has been used.
- * 
+ *
  * @author Ivan Senic
- * 
+ *
  */
-@Component
+@Component("extendedByteBufferInputStream")
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Lazy
 public class ExtendedByteBufferInputStream extends AbstractExtendedByteBufferInputStream {
@@ -87,12 +87,12 @@ public class ExtendedByteBufferInputStream extends AbstractExtendedByteBufferInp
 	/**
 	 * Next index of the descriptor to be read.
 	 */
-	private AtomicInteger nextDescriptorIndex = new AtomicInteger(0);
+	private final AtomicInteger nextDescriptorIndex = new AtomicInteger(0);
 
 	/**
 	 * Set of opened paths.
 	 */
-	private Set<Path> openedChannelPaths = Collections.newSetFromMap(new ConcurrentHashMap<Path, Boolean>(16, 0.75f, 1));
+	private final Set<Path> openedChannelPaths = Collections.newSetFromMap(new ConcurrentHashMap<Path, Boolean>(16, 0.75f, 1));
 
 	/**
 	 * No-arg constructor.
@@ -101,9 +101,9 @@ public class ExtendedByteBufferInputStream extends AbstractExtendedByteBufferInp
 	}
 
 	/**
-	 * Default constructor. Sets number of buffers to 3. Same as calling {@link
-	 * #ExtendedByteBufferInputStream(StorageData, List, 3)}.
-	 * 
+	 * Default constructor. Sets number of buffers to 3. Same as calling
+	 * {@link #ExtendedByteBufferInputStream(StorageData, List, 3)}.
+	 *
 	 * @param storageData
 	 *            {@link StorageData} to read information for.
 	 * @param descriptors
@@ -115,7 +115,7 @@ public class ExtendedByteBufferInputStream extends AbstractExtendedByteBufferInp
 
 	/**
 	 * Secondary constructor. Sets the amount of buffers to use.
-	 * 
+	 *
 	 * @param numberOfBuffers
 	 *            Amount of buffers to use during read.
 	 * @param storageData
@@ -131,10 +131,11 @@ public class ExtendedByteBufferInputStream extends AbstractExtendedByteBufferInp
 
 	/**
 	 * Prepares the stream for read. Must be called before any read operation is executed.
-	 * 
+	 *
 	 * @throws IOException
 	 *             if preparation fails due to inability to obtain defined number of byte buffers
 	 */
+	@Override
 	public void prepare() throws IOException {
 		super.prepare();
 
@@ -168,7 +169,7 @@ public class ExtendedByteBufferInputStream extends AbstractExtendedByteBufferInp
 
 	/**
 	 * Sets {@link #storageData}.
-	 * 
+	 *
 	 * @param storageData
 	 *            New value for {@link #storageData}
 	 */
@@ -178,7 +179,7 @@ public class ExtendedByteBufferInputStream extends AbstractExtendedByteBufferInp
 
 	/**
 	 * Gets {@link #descriptors}.
-	 * 
+	 *
 	 * @return {@link #descriptors}
 	 */
 	public List<IStorageDescriptor> getDescriptors() {
@@ -187,7 +188,7 @@ public class ExtendedByteBufferInputStream extends AbstractExtendedByteBufferInp
 
 	/**
 	 * Sets {@link #descriptors}.
-	 * 
+	 *
 	 * @param descriptors
 	 *            New value for {@link #descriptors}
 	 */
@@ -197,7 +198,7 @@ public class ExtendedByteBufferInputStream extends AbstractExtendedByteBufferInp
 
 	/**
 	 * Sets {@link #readingChannelManager}.
-	 * 
+	 *
 	 * @param readingChannelManager
 	 *            New value for {@link #readingChannelManager}
 	 */
@@ -207,7 +208,7 @@ public class ExtendedByteBufferInputStream extends AbstractExtendedByteBufferInp
 
 	/**
 	 * Sets {@link #storageManager}.
-	 * 
+	 *
 	 * @param storageManager
 	 *            New value for {@link #storageManager}
 	 */
@@ -217,7 +218,7 @@ public class ExtendedByteBufferInputStream extends AbstractExtendedByteBufferInp
 
 	/**
 	 * Sets {@link #executorService}.
-	 * 
+	 *
 	 * @param executorService
 	 *            New value for {@link #executorService}
 	 */
@@ -228,27 +229,27 @@ public class ExtendedByteBufferInputStream extends AbstractExtendedByteBufferInp
 	/**
 	 * Read task that reads one by one descriptor and puts the full buffers to the full buffers
 	 * queue.
-	 * 
+	 *
 	 * @author Ivan Senic
-	 * 
+	 *
 	 */
 	private class ReadTask implements Runnable {
 
 		/**
 		 * Lock for stop reading.
 		 */
-		private Lock continueReadLock = new ReentrantLock();
+		private final Lock continueReadLock = new ReentrantLock();
 
 		/**
 		 * Condition for signaling continue reading can occur.
 		 */
-		private Condition canContinueRead = continueReadLock.newCondition();
+		private final Condition canContinueRead = continueReadLock.newCondition();
 
 		/**
 		 * Flag for waiting, since signal/await is problematic due it's unknown if the waiting
 		 * thread will go into the await state before the signal comes.
 		 */
-		private AtomicBoolean wait = new AtomicBoolean();
+		private final AtomicBoolean wait = new AtomicBoolean();
 
 		/**
 		 * {@inheritDoc}

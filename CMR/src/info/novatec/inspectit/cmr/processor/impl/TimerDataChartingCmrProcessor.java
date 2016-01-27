@@ -8,20 +8,20 @@ import info.novatec.inspectit.communication.data.TimerData;
 import info.novatec.inspectit.spring.logger.Log;
 import info.novatec.inspectit.storage.serializer.SerializationException;
 import info.novatec.inspectit.storage.serializer.impl.SerializationManager;
-import info.novatec.inspectit.storage.serializer.provider.SerializationManagerProvider;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 
 import org.slf4j.Logger;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Processor that saves {@link TimerData} or {@link HttpTimerData} to database correctly if the
  * charting is on.
- * 
- * @author Ivan Senic
- * 
+ *
+ * @author Ivan Senic, Christoph Heger
+ *
  */
 public class TimerDataChartingCmrProcessor extends AbstractCmrDataProcessor {
 
@@ -38,10 +38,10 @@ public class TimerDataChartingCmrProcessor extends AbstractCmrDataProcessor {
 	TimerDataAggregator timerDataAggregator;
 
 	/**
-	 * Serialization manager provider for getting the {@link SerializationManager}.
+	 * Serialization manager factory for getting the {@link SerializationManager}.
 	 */
 	@Autowired
-	private SerializationManagerProvider serializationManagerProvider;
+	private ObjectFactory<SerializationManager> serializationManagerFactory;
 
 	/**
 	 * {@link SerializationManager} for cloning.
@@ -76,7 +76,7 @@ public class TimerDataChartingCmrProcessor extends AbstractCmrDataProcessor {
 	/**
 	 * Creates the cloned {@link HttpTimerData} by using the kryo and {@link #serializationManager}.
 	 * Sets id of the clone to zero.
-	 * 
+	 *
 	 * @param original
 	 *            Data to be cloned.
 	 * @return Cloned {@link HttpTimerData} with id zero.
@@ -94,7 +94,7 @@ public class TimerDataChartingCmrProcessor extends AbstractCmrDataProcessor {
 	 */
 	@PostConstruct
 	protected void init() {
-		serializationManager = serializationManagerProvider.createSerializer();
+		serializationManager = serializationManagerFactory.getObject();
 	}
 
 }

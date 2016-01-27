@@ -6,13 +6,13 @@ import info.novatec.inspectit.indexing.impl.IndexingException;
 import info.novatec.inspectit.spring.logger.Log;
 import info.novatec.inspectit.storage.nio.WriteReadCompletionRunnable;
 import info.novatec.inspectit.storage.nio.stream.ExtendedByteBufferOutputStream;
-import info.novatec.inspectit.storage.nio.stream.StreamProvider;
+import info.novatec.inspectit.storage.nio.stream.StreamFactory;
 import info.novatec.inspectit.storage.nio.write.WritingChannelManager;
 import info.novatec.inspectit.storage.processor.AbstractDataProcessor;
 import info.novatec.inspectit.storage.processor.write.AbstractWriteDataProcessor;
 import info.novatec.inspectit.storage.serializer.ISerializer;
 import info.novatec.inspectit.storage.serializer.SerializationException;
-import info.novatec.inspectit.storage.serializer.provider.SerializationManagerProvider;
+import info.novatec.inspectit.storage.serializer.impl.SerializationManager;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -44,6 +44,7 @@ import javax.annotation.Resource;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.esotericsoftware.kryo.io.Output;
@@ -52,9 +53,9 @@ import com.esotericsoftware.kryo.io.Output;
  * {@link StorageWriter} is class that contains shared functionality for writing data on one
  * storage. It can be overwritten, with special additional functionality, but care needs to be taken
  * that methods of this class are correctly called in super classes.
- * 
+ *
  * @author Ivan Senic
- * 
+ *
  */
 public class StorageWriter implements IWriter {
 
@@ -111,7 +112,7 @@ public class StorageWriter implements IWriter {
 	 * {@link SerializationManagerProvider}.
 	 */
 	@Autowired
-	private SerializationManagerProvider serializationManagerProvider;
+	private ObjectFactory<SerializationManager> serializationManagerFactory;
 
 	/**
 	 * Queue for {@link ISerializer} that are available.
@@ -133,10 +134,10 @@ public class StorageWriter implements IWriter {
 	ScheduledExecutorService scheduledExecutorService;
 
 	/**
-	 * {@link StreamProvider}.
+	 * {@link StreamFactory}.
 	 */
 	@Autowired
-	StreamProvider streamProvider;
+	StreamFactory streamFactory;
 
 	/**
 	 * List of finalization data processors.
@@ -147,7 +148,7 @@ public class StorageWriter implements IWriter {
 	/**
 	 * Opened channels {@link Paths}. These paths need to be closed when writing is finalized.
 	 */
-	private Set<Path> openedChannelPaths = Collections.newSetFromMap(new ConcurrentHashMap<Path, Boolean>(32, 0.75f, 1));
+	private final Set<Path> openedChannelPaths = Collections.newSetFromMap(new ConcurrentHashMap<Path, Boolean>(32, 0.75f, 1));
 
 	/**
 	 * Defines if the writer is ready for writing, thus is writing active.
@@ -173,7 +174,7 @@ public class StorageWriter implements IWriter {
 	 * The set of the currently active writing tasks represented by {@link FutureTask}. When this
 	 * set is empty, it means that no writing tasks is currently being executed.
 	 */
-	private Set<FutureTask<?>> activeWritingTasks = Collections.newSetFromMap(new ConcurrentHashMap<FutureTask<?>, Boolean>(256, 0.75f, 4));
+	private final Set<FutureTask<?>> activeWritingTasks = Collections.newSetFromMap(new ConcurrentHashMap<FutureTask<?>, Boolean>(256, 0.75f, 4));
 
 	/**
 	 * Process the list of objects against the all the {@link AbstractDataProcessor}s that are
@@ -183,7 +184,7 @@ public class StorageWriter implements IWriter {
 	 * <p>
 	 * The write will be done asynchronously, thus the method will return after creating writing
 	 * tasks and not waiting for actual write to take place.
-	 * 
+	 *
 	 * @param defaultDataList
 	 *            List of objects to process.
 	 * @param processors
@@ -227,7 +228,7 @@ public class StorageWriter implements IWriter {
 	 * Processes the write of collection in the way that this method will return only when all data
 	 * is written on the disk. In any other way this method is same as
 	 * {@link #process(Collection, Collection)}.
-	 * 
+	 *
 	 * @param defaultDataList
 	 *            List of objects to process.
 	 * @param processors
@@ -259,6 +260,7 @@ public class StorageWriter implements IWriter {
 	 * <p>
 	 * This method is only submitting a new writing task, thus it is thread safe and very fast.
 	 */
+	@Override
 	public Future<Void> write(DefaultData defaultData) {
 		return write(defaultData, Collections.emptyMap());
 	}
@@ -268,6 +270,7 @@ public class StorageWriter implements IWriter {
 	 * <p>
 	 * This method is only submitting a new writing task, thus it is thread safe and very fast.
 	 */
+	@Override
 	public Future<Void> write(DefaultData defaultData, Map<?, ?> kryoPreferences) {
 		if (writingOn && storageManager.canWriteMore()) {
 			for (AbstractWriteDataProcessor processor : writeDataProcessors) {
@@ -293,7 +296,7 @@ public class StorageWriter implements IWriter {
 	 * necessary operations so that calls to {@link #write(DefaultData)} can be executed. The
 	 * {@link StorageWriter} will be in prepared state until {@link #finalizeWrite()} method is
 	 * called.
-	 * 
+	 *
 	 * @param storageData
 	 *            Storage to write to.
 	 * @return True if the preparation was successfully done, otherwise false.
@@ -361,7 +364,7 @@ public class StorageWriter implements IWriter {
 	 * Sub-classes can override this method to include additional writes before the storage write is
 	 * finalized. Note that the overriding of this method has to be in the way to first execute the
 	 * additional saving, and the call super.finalizeWrite(boolean).
-	 * 
+	 *
 	 */
 	protected synchronized void finalizeWrite() {
 		if (!finalized) {
@@ -388,7 +391,7 @@ public class StorageWriter implements IWriter {
 	/**
 	 * Shutdown this storage writer. If finalize is true, {@link #finalizeWrite()} will be called in
 	 * addition.
-	 * 
+	 *
 	 * @param doFinalize
 	 *            If {@link #finalizeWrite()} should be called and thus write indexing tree and
 	 *            other needed data.
@@ -478,7 +481,7 @@ public class StorageWriter implements IWriter {
 
 	/**
 	 * Number of queued tasks in the executor service.
-	 * 
+	 *
 	 * @return Number of queued tasks in the executor service.
 	 */
 	public long getQueuedTaskCount() {
@@ -488,7 +491,7 @@ public class StorageWriter implements IWriter {
 	/**
 	 * Writes any object to the file with given file name. Note that this will be a synchronus
 	 * write.
-	 * 
+	 *
 	 * @param object
 	 *            Object to write. Note that object of this kind has to be serializable by
 	 *            {@link ISerializer}.
@@ -560,25 +563,25 @@ public class StorageWriter implements IWriter {
 
 	/**
 	 * Task for writing one {@link DefaultData} object to the disk.
-	 * 
+	 *
 	 * @author Ivan Senic
-	 * 
+	 *
 	 */
 	public class WriteTask implements Runnable {
 
 		/**
 		 * reference to write data.
 		 */
-		private SoftReference<DefaultData> referenceToWriteData;
+		private final SoftReference<DefaultData> referenceToWriteData;
 
 		/**
 		 * Map of preferences to be passed to the serializer.
 		 */
-		private Map<?, ?> kryoPreferences;
+		private final Map<?, ?> kryoPreferences;
 
 		/**
 		 * Default constructor. Object to be written.
-		 * 
+		 *
 		 * @param data
 		 *            Data to be written.
 		 * @param kryoPreferences
@@ -592,6 +595,7 @@ public class StorageWriter implements IWriter {
 		/**
 		 * {@inheritDoc}
 		 */
+		@Override
 		public void run() {
 			ExtendedByteBufferOutputStream extendedByteBufferOutputStream = null;
 			try {
@@ -639,7 +643,7 @@ public class StorageWriter implements IWriter {
 					return;
 				}
 
-				extendedByteBufferOutputStream = streamProvider.getExtendedByteBufferOutputStream();
+				extendedByteBufferOutputStream = streamFactory.getExtendedByteBufferOutputStream();
 				try {
 					Output output = new Output(extendedByteBufferOutputStream);
 					serializer.serialize(data, output, kryoPreferences);
@@ -706,15 +710,15 @@ public class StorageWriter implements IWriter {
 	/**
 	 * Writing future task that will remove itself from the {@link StorageWriter#activeWritingTasks}
 	 * set after the completion of runnable it has been assigned.
-	 * 
+	 *
 	 * @author Ivan Senic
-	 * 
+	 *
 	 */
 	private class WriteFutureTask extends FutureTask<Void> {
 
 		/**
 		 * Default constructor.
-		 * 
+		 *
 		 * @param runnable
 		 *            Runnable to execute.
 		 */
@@ -734,7 +738,7 @@ public class StorageWriter implements IWriter {
 
 	/**
 	 * Returns write path for this writer.
-	 * 
+	 *
 	 * @return Returns write path for this writer.
 	 */
 	public Path getWritingFolderPath() {
@@ -744,7 +748,7 @@ public class StorageWriter implements IWriter {
 	/**
 	 * Returns executor service status. This methods just returns the result of
 	 * {@link #executorService#toString()} method.
-	 * 
+	 *
 	 * @return Returns executor service status. This methods just returns the result of
 	 *         {@link #executorService#toString()} method.
 	 */
@@ -754,7 +758,7 @@ public class StorageWriter implements IWriter {
 
 	/**
 	 * Gets {@link #writingOn}.
-	 * 
+	 *
 	 * @return {@link #writingOn}
 	 */
 	public boolean isWritingOn() {
@@ -763,7 +767,7 @@ public class StorageWriter implements IWriter {
 
 	/**
 	 * Gets {@link #storageData}.
-	 * 
+	 *
 	 * @return {@link #storageData}
 	 */
 	public StorageData getStorageData() {
@@ -772,7 +776,7 @@ public class StorageWriter implements IWriter {
 
 	/**
 	 * Gets {@link #writingStatus}.
-	 * 
+	 *
 	 * @return {@link #writingStatus}
 	 */
 	public WritingStatus getWritingStatus() {
@@ -791,7 +795,7 @@ public class StorageWriter implements IWriter {
 		// available
 		int threads = writingExecutorService.getCorePoolSize();
 		for (int i = 0; i < threads; i++) {
-			serializerQueue.add(serializationManagerProvider.createSerializer());
+			serializerQueue.add(serializationManagerFactory.getObject());
 		}
 	}
 

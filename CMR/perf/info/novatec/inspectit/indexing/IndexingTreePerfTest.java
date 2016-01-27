@@ -16,7 +16,6 @@ import info.novatec.inspectit.communication.data.TimerData;
 import info.novatec.inspectit.indexing.impl.IndexQuery;
 import info.novatec.inspectit.indexing.query.factory.impl.InvocationSequenceDataQueryFactory;
 import info.novatec.inspectit.indexing.query.factory.impl.TimerDataQueryFactory;
-import info.novatec.inspectit.indexing.query.provider.impl.IndexQueryProvider;
 import info.novatec.inspectit.indexing.restriction.IIndexQueryRestrictionProcessor;
 import info.novatec.inspectit.indexing.restriction.impl.CachingIndexQueryRestrictionProcessor;
 
@@ -42,7 +41,8 @@ import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Warmup;
-
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
@@ -94,6 +94,12 @@ public class IndexingTreePerfTest {
 	private int timestampSpread;
 
 	/**
+	 * Index query factory.
+	 */
+	@Autowired
+	private ObjectFactory<IndexQuery> indexQueryFactory;
+
+	/**
 	 * Aggregated timer data query.
 	 */
 	private IndexQuery aggregatedTimerDataQuery;
@@ -113,25 +119,29 @@ public class IndexingTreePerfTest {
 	 */
 	private IndexQuery invocationOverviewQuery;
 
-	
 	/**
 	 * ForkJoinPool
 	 */
 	private ForkJoinPool forkJoinPool;
-	
+
 	/**
 	 * Number of processors used by the forkJoinPool
 	 */
-	@Param({"4", "8"})
+	@Param({ "4", "8" })
 	private int numberOfProcessors;
-	
+
+	/**
+	 * {@link IIndexQueryRestrictionProcessor} for {@link IndexQuery}.
+	 */
+	private final IIndexQueryRestrictionProcessor restrictionProcessor = new CachingIndexQueryRestrictionProcessor();
+
 	/**
 	 * Set up, prepare indexing tree.
 	 */
 	@Setup(Level.Trial)
 	public void initIndexingTree() throws Exception {
 		forkJoinPool = new ForkJoinPool(numberOfProcessors);
-		
+
 		RootBranchFactory rootBranchFactory = new RootBranchFactory();
 		indexingTree = rootBranchFactory.getObject();
 
@@ -157,23 +167,11 @@ public class IndexingTreePerfTest {
 		long platformIdent = getRandomPlatformIdent(random);
 		long methodIdent = getRandomMethodIdent(random);
 
-		final IIndexQueryRestrictionProcessor restrictionProcessor = new CachingIndexQueryRestrictionProcessor();
-		IndexQueryProvider indexQueryProvider = new IndexQueryProvider() {
-
-			@Override
-			public IndexQuery createNewIndexQuery() {
-				IndexQuery indexQuery = new IndexQuery();
-				indexQuery.setRestrictionProcessor(restrictionProcessor);
-				return indexQuery;
-			}
-		};
-
 		// timer data
-		TimerDataQueryFactory<IndexQuery> timerDataQueryFactory = new TimerDataQueryFactory<IndexQuery>();
-		timerDataQueryFactory.setIndexQueryProvider(indexQueryProvider);
+		TimerDataQueryFactory timerDataQueryFactory = new TimerDataQueryFactory();
 
-		aggregatedTimerDataQuery = timerDataQueryFactory.getAggregatedTimerDataQuery(new TimerData(null, platformIdent, 0, 0), null, null);
-		aggregatedTimerDataQueryMethod = timerDataQueryFactory.getAggregatedTimerDataQuery(new TimerData(null, platformIdent, 0, methodIdent), null, null);
+		aggregatedTimerDataQuery = timerDataQueryFactory.getAggregatedTimerDataQuery(createNewIndexQuery(), new TimerData(null, platformIdent, 0, 0), null, null);
+		aggregatedTimerDataQueryMethod = timerDataQueryFactory.getAggregatedTimerDataQuery(createNewIndexQuery(), new TimerData(null, platformIdent, 0, methodIdent), null, null);
 
 		Date fromDate;
 		Date toDate;
@@ -186,13 +184,24 @@ public class IndexingTreePerfTest {
 			fromDate = date;
 			toDate = new Date(date.getTime() + time15mins);
 		}
-		aggregatedTimerDataQuery15MinsTimeframe = timerDataQueryFactory.getAggregatedTimerDataQuery(new TimerData(null, platformIdent, 0, 0), fromDate, toDate);
+
+		aggregatedTimerDataQuery15MinsTimeframe = timerDataQueryFactory.getAggregatedTimerDataQuery(createNewIndexQuery(), new TimerData(null, platformIdent, 0, 0), fromDate, toDate);
 
 		// invocation data
-		InvocationSequenceDataQueryFactory<IndexQuery> invocationSequenceDataQueryFactory = new InvocationSequenceDataQueryFactory<IndexQuery>();
-		invocationSequenceDataQueryFactory.setIndexQueryProvider(indexQueryProvider);
+		InvocationSequenceDataQueryFactory invocationSequenceDataQueryFactory = new InvocationSequenceDataQueryFactory();
 
-		invocationOverviewQuery = invocationSequenceDataQueryFactory.getInvocationSequenceOverview(platformIdent, 0, 0, null, null);
+		invocationOverviewQuery = invocationSequenceDataQueryFactory.getInvocationSequenceOverview(createNewIndexQuery(), platformIdent, 0, 0, null, null);
+	}
+
+	/**
+	 * Creates an {@link IndexQuery} and sets properties.
+	 * 
+	 * @return Query Object.
+	 */
+	private IndexQuery createNewIndexQuery() {
+		IndexQuery query = indexQueryFactory.getObject();
+		query.setRestrictionProcessor(restrictionProcessor);
+		return query;
 	}
 
 	// Query fork&join benchmarks
@@ -215,7 +224,7 @@ public class IndexingTreePerfTest {
 	public List<DefaultData> queryInvocationOverviewForkJoin() {
 		return indexingTree.query(invocationOverviewQuery, forkJoinPool);
 	}
-	
+
 	// Query benchmarks without fork&join
 	@Benchmark
 	public List<DefaultData> queryTimerData() {

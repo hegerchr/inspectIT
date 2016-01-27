@@ -13,11 +13,14 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
 /**
  * {@link IInvocationDataAccessService} for storage purposes.
- * 
+ *
  * @author Ivan Senic
- * 
+ *
  */
 public class StorageInvocationDataAccessService extends AbstractStorageService<InvocationSequenceData> implements IInvocationDataAccessService {
 
@@ -29,11 +32,18 @@ public class StorageInvocationDataAccessService extends AbstractStorageService<I
 	/**
 	 * Index query provider.
 	 */
-	private InvocationSequenceDataQueryFactory<StorageIndexQuery> invocationDataQueryFactory;
+	private InvocationSequenceDataQueryFactory invocationDataQueryFactory;
+
+	/**
+	 * {@link ObjectFactory} to create {@link StorageIndexQuery} instances.
+	 */
+	@Autowired
+	private ObjectFactory<StorageIndexQuery> storageIndexQueryFactory;
 
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public List<InvocationSequenceData> getInvocationSequenceOverview(long platformId, long methodId, int limit, ResultComparator<InvocationSequenceData> resultComparator) {
 		return this.getInvocationSequenceOverview(platformId, methodId, limit, null, null, resultComparator);
 	}
@@ -41,6 +51,7 @@ public class StorageInvocationDataAccessService extends AbstractStorageService<I
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public List<InvocationSequenceData> getInvocationSequenceOverview(long platformId, int limit, ResultComparator<InvocationSequenceData> resultComparator) {
 		return this.getInvocationSequenceOverview(platformId, 0, limit, resultComparator);
 	}
@@ -48,8 +59,11 @@ public class StorageInvocationDataAccessService extends AbstractStorageService<I
 	/**
 	 * {@inheritDoc}
 	 */
-	public List<InvocationSequenceData> getInvocationSequenceOverview(long platformId, long methodId, int limit, Date fromDate, Date toDate, ResultComparator<InvocationSequenceData> resultComparator) {
-		StorageIndexQuery query = invocationDataQueryFactory.getInvocationSequenceOverview(platformId, methodId, limit, fromDate, toDate);
+	@Override
+	public List<InvocationSequenceData> getInvocationSequenceOverview(long platformId, long methodId, int limit, Date fromDate, Date toDate,
+			ResultComparator<InvocationSequenceData> resultComparator) {
+		StorageIndexQuery query = storageIndexQueryFactory.getObject();
+		query = invocationDataQueryFactory.getInvocationSequenceOverview(query, platformId, methodId, limit, fromDate, toDate);
 		query.setOnlyInvocationsWithoutChildren(true);
 		if (null != resultComparator) {
 			resultComparator.setCachedDataService(getStorageRepositoryDefinition().getCachedDataService());
@@ -63,6 +77,7 @@ public class StorageInvocationDataAccessService extends AbstractStorageService<I
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public List<InvocationSequenceData> getInvocationSequenceOverview(long platformId, int limit, Date fromDate, Date toDate, ResultComparator<InvocationSequenceData> resultComparator) {
 		return this.getInvocationSequenceOverview(platformId, 0, limit, fromDate, toDate, resultComparator);
 	}
@@ -70,8 +85,10 @@ public class StorageInvocationDataAccessService extends AbstractStorageService<I
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public List<InvocationSequenceData> getInvocationSequenceOverview(long platformId, Collection<Long> invocationIdCollection, int limit, ResultComparator<InvocationSequenceData> resultComparator) {
-		StorageIndexQuery query = invocationDataQueryFactory.getInvocationSequenceOverview(platformId, invocationIdCollection, limit);
+		StorageIndexQuery query = storageIndexQueryFactory.getObject();
+		query = invocationDataQueryFactory.getInvocationSequenceOverview(query, platformId, invocationIdCollection, limit);
 		query.setOnlyInvocationsWithoutChildren(true);
 		if (null != resultComparator) {
 			resultComparator.setCachedDataService(getStorageRepositoryDefinition().getCachedDataService());
@@ -84,9 +101,10 @@ public class StorageInvocationDataAccessService extends AbstractStorageService<I
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public InvocationSequenceData getInvocationSequenceDetail(InvocationSequenceData template) {
 		// here we need to create new query since this one does not exist in factory
-		StorageIndexQuery query = invocationDataQueryFactory.getIndexQueryProvider().getIndexQuery();
+		StorageIndexQuery query = storageIndexQueryFactory.getObject();
 		ArrayList<Class<?>> searchedClasses = new ArrayList<Class<?>>();
 		searchedClasses.add(InvocationSequenceData.class);
 		query.setObjectClasses(searchedClasses);
@@ -107,6 +125,7 @@ public class StorageInvocationDataAccessService extends AbstractStorageService<I
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	protected IStorageTreeComponent<InvocationSequenceData> getIndexingTree() {
 		return indexingTree;
 	}
@@ -123,7 +142,7 @@ public class StorageInvocationDataAccessService extends AbstractStorageService<I
 	 * @param invocationDataQueryFactory
 	 *            the invocationDataQueryFactory to set
 	 */
-	public void setInvocationDataQueryFactory(InvocationSequenceDataQueryFactory<StorageIndexQuery> invocationDataQueryFactory) {
+	public void setInvocationDataQueryFactory(InvocationSequenceDataQueryFactory invocationDataQueryFactory) {
 		this.invocationDataQueryFactory = invocationDataQueryFactory;
 	}
 

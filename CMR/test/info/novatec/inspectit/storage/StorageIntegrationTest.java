@@ -11,6 +11,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+
 import info.novatec.inspectit.cmr.storage.CmrStorageManager;
 import info.novatec.inspectit.cmr.test.AbstractTransactionalTestNGLogSupport;
 import info.novatec.inspectit.communication.DefaultData;
@@ -22,7 +23,7 @@ import info.novatec.inspectit.indexing.storage.IStorageTreeComponent;
 import info.novatec.inspectit.indexing.storage.impl.StorageIndexQuery;
 import info.novatec.inspectit.storage.label.StringStorageLabel;
 import info.novatec.inspectit.storage.label.type.impl.RatingLabelType;
-import info.novatec.inspectit.storage.nio.stream.InputStreamProvider;
+import info.novatec.inspectit.storage.nio.stream.InputStreamFactory;
 import info.novatec.inspectit.storage.processor.AbstractDataProcessor;
 import info.novatec.inspectit.storage.processor.impl.DataSaverProcessor;
 import info.novatec.inspectit.storage.serializer.ISerializer;
@@ -53,9 +54,9 @@ import com.esotericsoftware.kryo.io.Input;
 
 /**
  * Tests the complete CMR storage functionality.
- * 
+ *
  * @author Ivan Senic
- * 
+ *
  */
 @ContextConfiguration(locations = { "classpath:spring/spring-context-global.xml", "classpath:spring/spring-context-database.xml", "classpath:spring/spring-context-beans.xml",
 		"classpath:spring/spring-context-processors.xml", "classpath:spring/spring-context-storage-test.xml" })
@@ -63,16 +64,16 @@ import com.esotericsoftware.kryo.io.Input;
 public class StorageIntegrationTest extends AbstractTransactionalTestNGLogSupport {
 
 	/**
-	 * {@link StorageManager}.
+	 * {@link CmrStorageManager}.
 	 */
 	@Autowired
 	private CmrStorageManager storageManager;
 
 	/**
-	 * {@link InputStreamProvider}.
+	 * {@link inputStreamFactory}.
 	 */
 	@Autowired
-	InputStreamProvider inputStreamProvider;
+	InputStreamFactory inputStreamFactory;
 
 	/**
 	 * {@link ISerializer}.
@@ -122,7 +123,7 @@ public class StorageIntegrationTest extends AbstractTransactionalTestNGLogSuppor
 
 	/**
 	 * Tests creation of storage.
-	 * 
+	 *
 	 * @throws SerializationException
 	 *             If serialization fails.
 	 * @throws IOException
@@ -173,7 +174,7 @@ public class StorageIntegrationTest extends AbstractTransactionalTestNGLogSuppor
 
 	/**
 	 * Test write to storage.
-	 * 
+	 *
 	 * @throws BusinessException
 	 *             If {@link BusinessException} occurs.
 	 * @throws SerializationException
@@ -209,7 +210,7 @@ public class StorageIntegrationTest extends AbstractTransactionalTestNGLogSuppor
 
 	/**
 	 * Test storage finalization.
-	 * 
+	 *
 	 * @throws SerializationException
 	 *             If serialization fails.
 	 * @throws IOException
@@ -282,14 +283,11 @@ public class StorageIntegrationTest extends AbstractTransactionalTestNGLogSuppor
 
 	/**
 	 * Tests reading of data from created storage.
-	 * 
-	 * @throws SerializationException
-	 *             If serialization fails.
-	 * @throws IOException
-	 *             If {@link IOException} occurs.
+	 *
+	 * @throws Exception
 	 */
 	@Test(dependsOnMethods = { "finalizeWriteTest" })
-	public void readTest() throws SerializationException, IOException {
+	public void readTest() throws Exception {
 		if (storageIndexingTree == null) {
 			return;
 		}
@@ -306,7 +304,7 @@ public class StorageIntegrationTest extends AbstractTransactionalTestNGLogSuppor
 			assertThat("Size of the descriptor is wrong.", descriptor.getSize(), is(greaterThan(0L)));
 		}
 
-		InputStream result = inputStreamProvider.getExtendedByteBufferInputStream(storageData, descriptors);
+		InputStream result = inputStreamFactory.getExtendedByteBufferInputStream(storageData, descriptors);
 		Input input = new Input(result);
 		int count = 0;
 		try {
@@ -328,7 +326,7 @@ public class StorageIntegrationTest extends AbstractTransactionalTestNGLogSuppor
 
 	/**
 	 * Test adding/removing of labels to a {@link StorageData} and sucessful saving to the disk.
-	 * 
+	 *
 	 * @throws SerializationException
 	 *             If serialization fails.
 	 * @throws IOException
@@ -408,7 +406,7 @@ public class StorageIntegrationTest extends AbstractTransactionalTestNGLogSuppor
 
 	/**
 	 * Returns storage folder.
-	 * 
+	 *
 	 * @return Returns storage folder.
 	 */
 	private File getStorageFolder() {
@@ -425,7 +423,7 @@ public class StorageIntegrationTest extends AbstractTransactionalTestNGLogSuppor
 	}
 
 	/**
-	 * 
+	 *
 	 * @return One {@link SqlStatementData} with random values.
 	 */
 	private static SqlStatementData getSqlStatementInstance() {
@@ -448,7 +446,7 @@ public class StorageIntegrationTest extends AbstractTransactionalTestNGLogSuppor
 
 	/**
 	 * Returns the random {@link InvocationSequenceData} instance.
-	 * 
+	 *
 	 * @param childCount
 	 *            Desired child count.
 	 * @return {@link InvocationSequenceData} instance.

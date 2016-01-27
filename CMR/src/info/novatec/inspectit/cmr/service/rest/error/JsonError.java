@@ -4,13 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.view.json.MappingJacksonJsonView;
+import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 /**
  * Class for displaying exceptions in RESTful services with the {@link ModelAndView}.
- * 
+ *
  * @author Ivan Senic
- * 
+ *
  */
 public class JsonError {
 
@@ -21,7 +21,7 @@ public class JsonError {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param exception
 	 *            Cause of the error.
 	 */
@@ -34,7 +34,7 @@ public class JsonError {
 	 *         information about the exception.
 	 */
 	public ModelAndView asModelAndView() {
-		MappingJacksonJsonView jsonView = new MappingJacksonJsonView();
+		MappingJackson2JsonView jsonView = new MappingJackson2JsonView();
 		Map<String, String> map = new HashMap<>();
 		map.put("error", exception.getMessage());
 		map.put("exceptionType", exception.getClass().getName());

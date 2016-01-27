@@ -29,12 +29,12 @@
 		<dependency org="commons-collections" name="commons-collections" rev="3.2.1" conf="prod->default" />
 		<dependency org="commons-pool" name="commons-pool" rev="1.6" conf="prod->default" />
 
-		<dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.spring-core" rev="4.2.4.RELEASE_1" conf="prod->default" />
-		<dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.spring-beans" rev="4.2.4.RELEASE_1" conf="prod->default" />
-		<dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.spring-context" rev="4.2.4.RELEASE_1" conf="prod->default" />
-		<dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.spring-web" rev="4.2.4.RELEASE_1" conf="prod->default" />		
-		<dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.spring-expression" rev="4.2.4.RELEASE_1" conf="prod->default" />
-		<dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.spring-aop" rev="4.2.4.RELEASE_1" conf="prod->default" />
+		<dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.spring-core" rev="3.2.14.RELEASE_1" conf="prod->default" />
+		<dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.spring-beans" rev="3.2.14.RELEASE_1" conf="prod->default" />
+		<dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.spring-context" rev="3.2.14.RELEASE_1" conf="prod->default" />
+		<dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.spring-web" rev="3.2.14.RELEASE_1" conf="prod->default" />		
+		<dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.spring-expression" rev="3.2.14.RELEASE_1" conf="prod->default" />
+		<dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.spring-aop" rev="3.2.14.RELEASE_1" conf="prod->default" />
 		<dependency org="org.aopalliance" name="com.springsource.org.aopalliance" rev="1.0.0" conf="prod->default" />
 		<dependency org="javax.servlet" name="javax.servlet" rev="3.0.0.v201103241009" conf="prod->default" />
 		<dependency org="net.sourceforge.cglib" name="com.springsource.net.sf.cglib" rev="2.2.0" conf="prod->default" />

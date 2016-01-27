@@ -18,12 +18,14 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * {@link IHttpTimerDataAccessService} for storage purposes.
- * 
+ *
  * @author Ivan Senic
- * 
+ *
  */
 public class StorageHttpTimerDataAccessService extends AbstractStorageService<HttpTimerData> implements IHttpTimerDataAccessService {
 
@@ -47,46 +49,62 @@ public class StorageHttpTimerDataAccessService extends AbstractStorageService<Ht
 	/**
 	 * Index query provider.
 	 */
-	private HttpTimerDataQueryFactory<StorageIndexQuery> httpDataQueryFactory;
+	private HttpTimerDataQueryFactory httpDataQueryFactory;
+
+	/**
+	 * {@link ObjectFactory} to create {@link StorageIndexQuery} instances.
+	 */
+	@Autowired
+	private ObjectFactory<StorageIndexQuery> storageIndexQueryFactory;
 
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public List<HttpTimerData> getAggregatedTimerData(HttpTimerData httpData, boolean includeRequestMethod) {
-		StorageIndexQuery query = httpDataQueryFactory.getFindAllHttpTimersQuery(httpData, null, null);
+		StorageIndexQuery query = storageIndexQueryFactory.getObject();
+		query = httpDataQueryFactory.getFindAllHttpTimersQuery(query, httpData, null, null);
 		return super.executeQuery(query, new HttpTimerDataAggregator(true, includeRequestMethod));
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public List<HttpTimerData> getAggregatedTimerData(HttpTimerData httpData, boolean includeRequestMethod, Date fromDate, Date toDate) {
-		StorageIndexQuery query = httpDataQueryFactory.getFindAllHttpTimersQuery(httpData, fromDate, toDate);
+		StorageIndexQuery query = storageIndexQueryFactory.getObject();
+		query = httpDataQueryFactory.getFindAllHttpTimersQuery(query, httpData, fromDate, toDate);
 		return super.executeQuery(query, new HttpTimerDataAggregator(true, includeRequestMethod));
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public List<HttpTimerData> getTaggedAggregatedTimerData(HttpTimerData httpData, boolean includeRequestMethod) {
-		StorageIndexQuery query = httpDataQueryFactory.getFindAllTaggedHttpTimersQuery(httpData, null, null);
+		StorageIndexQuery query = storageIndexQueryFactory.getObject();
+		query = httpDataQueryFactory.getFindAllTaggedHttpTimersQuery(query, httpData, null, null);
 		return super.executeQuery(query, new HttpTimerDataAggregator(false, includeRequestMethod));
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public List<HttpTimerData> getTaggedAggregatedTimerData(HttpTimerData httpData, boolean includeRequestMethod, Date fromDate, Date toDate) {
-		StorageIndexQuery query = httpDataQueryFactory.getFindAllTaggedHttpTimersQuery(httpData, fromDate, toDate);
+		StorageIndexQuery query = storageIndexQueryFactory.getObject();
+		query = httpDataQueryFactory.getFindAllTaggedHttpTimersQuery(query, httpData, fromDate, toDate);
 		return super.executeQuery(query, new HttpTimerDataAggregator(false, includeRequestMethod));
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public List<HttpTimerData> getChartingHttpTimerDataFromDateToDate(Collection<HttpTimerData> templates, Date fromDate, Date toDate, boolean retrieveByTag) {
 		if (CollectionUtils.isNotEmpty(templates)) {
-			StorageIndexQuery query = httpDataQueryFactory.getFindAllHttpTimersQuery(templates.iterator().next(), fromDate, toDate);
+			StorageIndexQuery query = storageIndexQueryFactory.getObject();
+			query = httpDataQueryFactory.getFindAllHttpTimersQuery(query, templates.iterator().next(), fromDate, toDate);
 
 			if (!retrieveByTag) {
 				Set<String> uris = new HashSet<String>();
@@ -116,6 +134,7 @@ public class StorageHttpTimerDataAccessService extends AbstractStorageService<Ht
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	protected IStorageTreeComponent<HttpTimerData> getIndexingTree() {
 		return indexingTree;
 	}
@@ -132,7 +151,7 @@ public class StorageHttpTimerDataAccessService extends AbstractStorageService<Ht
 	 * @param httpDataQueryFactory
 	 *            the httpDataQueryFactory to set
 	 */
-	public void setHttpDataQueryFactory(HttpTimerDataQueryFactory<StorageIndexQuery> httpDataQueryFactory) {
+	public void setHttpDataQueryFactory(HttpTimerDataQueryFactory httpDataQueryFactory) {
 		this.httpDataQueryFactory = httpDataQueryFactory;
 	}
 

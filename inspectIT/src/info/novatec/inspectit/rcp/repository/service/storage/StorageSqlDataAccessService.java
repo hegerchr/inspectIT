@@ -10,11 +10,14 @@ import info.novatec.inspectit.indexing.storage.impl.StorageIndexQuery;
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
 /**
  * {@link ISqlDataAccessService} for storage purposes.
- * 
+ *
  * @author Ivan Senic
- * 
+ *
  */
 public class StorageSqlDataAccessService extends AbstractStorageService<SqlStatementData> implements ISqlDataAccessService {
 
@@ -26,11 +29,18 @@ public class StorageSqlDataAccessService extends AbstractStorageService<SqlState
 	/**
 	 * Index query provider.
 	 */
-	private SqlStatementDataQueryFactory<StorageIndexQuery> sqlDataQueryFactory;
+	private SqlStatementDataQueryFactory sqlDataQueryFactory;
+
+	/**
+	 * {@link ObjectFactory} to create {@link StorageIndexQuery} instances.
+	 */
+	@Autowired
+	private ObjectFactory<StorageIndexQuery> storageIndexQueryFactory;
 
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public List<SqlStatementData> getAggregatedSqlStatements(SqlStatementData sqlStatementData) {
 		return this.getAggregatedSqlStatements(sqlStatementData, null, null);
 	}
@@ -38,14 +48,17 @@ public class StorageSqlDataAccessService extends AbstractStorageService<SqlState
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public List<SqlStatementData> getAggregatedSqlStatements(SqlStatementData sqlStatementData, Date fromDate, Date toDate) {
-		StorageIndexQuery query = sqlDataQueryFactory.getAggregatedSqlStatementsQuery(sqlStatementData, fromDate, toDate);
+		StorageIndexQuery query = storageIndexQueryFactory.getObject();
+		query = sqlDataQueryFactory.getAggregatedSqlStatementsQuery(query, sqlStatementData, fromDate, toDate);
 		return super.executeQuery(query, Aggregators.SQL_STATEMENT_DATA_AGGREGATOR);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public List<SqlStatementData> getParameterAggregatedSqlStatements(SqlStatementData sqlStatementData) {
 		return this.getParameterAggregatedSqlStatements(sqlStatementData, null, null);
 	}
@@ -53,8 +66,10 @@ public class StorageSqlDataAccessService extends AbstractStorageService<SqlState
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public List<SqlStatementData> getParameterAggregatedSqlStatements(SqlStatementData sqlStatementData, Date fromDate, Date toDate) {
-		StorageIndexQuery query = sqlDataQueryFactory.getAggregatedSqlStatementsQuery(sqlStatementData, fromDate, toDate);
+		StorageIndexQuery query = storageIndexQueryFactory.getObject();
+		query = sqlDataQueryFactory.getAggregatedSqlStatementsQuery(query, sqlStatementData, fromDate, toDate);
 		query.setSql(sqlStatementData.getSql());
 		return super.executeQuery(query, Aggregators.SQL_STATEMENT_DATA_PARAMETER_AGGREGATOR);
 	}
@@ -62,6 +77,7 @@ public class StorageSqlDataAccessService extends AbstractStorageService<SqlState
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	protected IStorageTreeComponent<SqlStatementData> getIndexingTree() {
 		return indexingTree;
 	}
@@ -78,7 +94,7 @@ public class StorageSqlDataAccessService extends AbstractStorageService<SqlState
 	 * @param sqlDataQueryFactory
 	 *            the sqlDataQueryFactory to set
 	 */
-	public void setSqlDataQueryFactory(SqlStatementDataQueryFactory<StorageIndexQuery> sqlDataQueryFactory) {
+	public void setSqlDataQueryFactory(SqlStatementDataQueryFactory sqlDataQueryFactory) {
 		this.sqlDataQueryFactory = sqlDataQueryFactory;
 	}
 

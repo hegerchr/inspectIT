@@ -10,9 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * The {@link ExceptionSensor} which initializes and returns the {@link ExceptionSensorHook} class.
- * 
+ *
  * @author Eduard Tudenhoefner
- * 
+ *
  */
 public class ExceptionSensor extends AbstractMethodSensor implements IExceptionSensor {
 
@@ -35,7 +35,7 @@ public class ExceptionSensor extends AbstractMethodSensor implements IExceptionS
 
 	/**
 	 * The default constructor which needs 3 parameter for initialization.
-	 * 
+	 *
 	 * @param idManager
 	 *            The ID manager.
 	 */

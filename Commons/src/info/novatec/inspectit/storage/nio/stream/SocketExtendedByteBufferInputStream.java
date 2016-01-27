@@ -15,11 +15,11 @@ import org.springframework.stereotype.Component;
 /**
  * Input stream that uses {@link SocketChannel} as input and provides bytes via our
  * {@link AbstractExtendedByteBufferInputStream} methodology.
- * 
+ *
  * @author Ivan Senic
- * 
+ *
  */
-@Component
+@Component("socketExtendedByteBufferInputStream")
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Lazy
 public class SocketExtendedByteBufferInputStream extends AbstractExtendedByteBufferInputStream {
@@ -53,7 +53,7 @@ public class SocketExtendedByteBufferInputStream extends AbstractExtendedByteBuf
 	 * <p>
 	 * This method makes stream reusable. Caller must ensure that all the bytes from previous read
 	 * have been read, otherwise they will be lost.
-	 * 
+	 *
 	 * @param length
 	 *            New wanted length of read.
 	 */
@@ -74,9 +74,9 @@ public class SocketExtendedByteBufferInputStream extends AbstractExtendedByteBuf
 
 	/**
 	 * Runnable that reads from socket.
-	 * 
+	 *
 	 * @author Ivan Senic
-	 * 
+	 *
 	 */
 	private class SocketReadRunnable implements Runnable {
 
@@ -127,7 +127,7 @@ public class SocketExtendedByteBufferInputStream extends AbstractExtendedByteBuf
 
 	/**
 	 * Sets {@link #socketChannel}.
-	 * 
+	 *
 	 * @param socketChannel
 	 *            New value for {@link #socketChannel}
 	 */
@@ -137,7 +137,7 @@ public class SocketExtendedByteBufferInputStream extends AbstractExtendedByteBuf
 
 	/**
 	 * Sets {@link #executorService}.
-	 * 
+	 *
 	 * @param executorService
 	 *            New value for {@link #executorService}
 	 */

@@ -15,9 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * The invocation sequence sensor which initializes and returns the {@link InvocationSequenceHook}
  * class.
- * 
+ *
  * @author Patrice Bouillet
- * 
+ *
  */
 public class InvocationSequenceSensor extends AbstractMethodSensor implements IMethodSensor {
 
@@ -58,7 +58,7 @@ public class InvocationSequenceSensor extends AbstractMethodSensor implements IM
 
 	/**
 	 * The default constructor which needs 2 parameter for initialization.
-	 * 
+	 *
 	 * @param timer
 	 *            The timer used for accurate measuring.
 	 * @param idManager

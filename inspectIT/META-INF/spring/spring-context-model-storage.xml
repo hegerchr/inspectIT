@@ -9,9 +9,9 @@
 		 
 	<bean id="storageIndexQuery" class="info.novatec.inspectit.indexing.storage.impl.StorageIndexQuery" scope="prototype" lazy-init="true" />
 
-	<bean id="storageIndexQueryProvider" class="info.novatec.inspectit.indexing.query.provider.impl.StorageIndexQueryProvider">
+	<!-- <bean id="storageIndexQueryProvider" class="info.novatec.inspectit.indexing.query.provider.impl.StorageIndexQueryProvider">
 		<lookup-method name="createNewStorageIndexQuery" bean="storageIndexQuery" />
-	</bean>
+	</bean> -->
 
 	<bean id="restrictionProcessor" class="info.novatec.inspectit.indexing.restriction.impl.CachingIndexQueryRestrictionProcessor" />
 
@@ -32,7 +32,7 @@
 	<bean id="invocationSequenceDataQueryFactory" class="info.novatec.inspectit.indexing.query.factory.impl.InvocationSequenceDataQueryFactory" />
 	<bean id="exceptionSensorDataQueryFactory" class="info.novatec.inspectit.indexing.query.factory.impl.ExceptionSensorDataQueryFactory" />
 
-	<bean id="dataRetriever" class="info.novatec.inspectit.rcp.storage.util.DataRetriever" init-method="init" />
+	<bean id="dataRetriever" class="info.novatec.inspectit.rcp.storage.util.DataRetriever" />
 
 	<bean id="dataUploader" class="info.novatec.inspectit.rcp.storage.util.DataUploader" />
 
@@ -98,8 +98,8 @@
 		<property name="executorService" ref="storageExecutorService" />
 	</bean>
 
-	<bean id="inputStreamProvider" class="info.novatec.inspectit.storage.nio.stream.InputStreamProvider">
-		<lookup-method name="createExtendedByteBufferInputStream" bean="extendedByteBufferInputStream" />
+	<bean id="inputStreamProvider" class="info.novatec.inspectit.storage.nio.stream.InputStreamFactory">
+		<!-- <lookup-method name="createExtendedByteBufferInputStream" bean="extendedByteBufferInputStream" /> -->
 	</bean>
 	
 </beans>

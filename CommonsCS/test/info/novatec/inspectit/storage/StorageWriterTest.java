@@ -19,7 +19,7 @@ import info.novatec.inspectit.indexing.impl.IndexingException;
 import info.novatec.inspectit.storage.StorageWriter.WriteTask;
 import info.novatec.inspectit.storage.nio.WriteReadCompletionRunnable;
 import info.novatec.inspectit.storage.nio.stream.ExtendedByteBufferOutputStream;
-import info.novatec.inspectit.storage.nio.stream.StreamProvider;
+import info.novatec.inspectit.storage.nio.stream.StreamFactory;
 import info.novatec.inspectit.storage.nio.write.WritingChannelManager;
 import info.novatec.inspectit.storage.processor.AbstractDataProcessor;
 import info.novatec.inspectit.storage.processor.write.AbstractWriteDataProcessor;
@@ -45,6 +45,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -60,7 +61,8 @@ public class StorageWriterTest {
 	private ISerializer serializer;
 
 	@Mock
-	private StreamProvider streamProvider;
+	@Autowired
+	private StreamFactory streamFactory;
 
 	@Mock
 	private ExtendedByteBufferOutputStream extendedByteBufferOutputStream;
@@ -87,14 +89,14 @@ public class StorageWriterTest {
 	@Mock
 	private ScheduledFuture future;
 
-	private Path testPath = Paths.get("myTestPath" + File.separator);
+	private final Path testPath = Paths.get("myTestPath" + File.separator);
 
 	@SuppressWarnings({ "unchecked" })
 	@BeforeMethod
-	public void init() throws IndexingException, InterruptedException, IOException {
+	public void init() throws Exception {
 		MockitoAnnotations.initMocks(this);
 		storageWriter = new StorageWriter();
-		when(streamProvider.getExtendedByteBufferOutputStream()).thenReturn(extendedByteBufferOutputStream);
+		when(streamFactory.getExtendedByteBufferOutputStream()).thenReturn(extendedByteBufferOutputStream);
 		when(storageIndexingTreeHandler.startWrite(Mockito.<WriteTask> anyObject())).thenReturn(1);
 		when(storageManager.canWriteMore()).thenReturn(true);
 		when(storageManager.getChannelPath(Mockito.<IStorageData> anyObject(), anyInt())).thenReturn(Paths.get("test"));
@@ -103,7 +105,7 @@ public class StorageWriterTest {
 		storageWriter.indexingTreeHandler = storageIndexingTreeHandler;
 		storageWriter.storageManager = storageManager;
 		storageWriter.writingChannelManager = writingChannelManager;
-		storageWriter.streamProvider = streamProvider;
+		storageWriter.streamFactory = streamFactory;
 		storageWriter.serializerQueue = serializerQueue;
 		storageWriter.scheduledExecutorService = scheduledExecutorService;
 		storageWriter.writeDataProcessors = Collections.singletonList(writeDataProcessor);
@@ -153,7 +155,7 @@ public class StorageWriterTest {
 	public void writeTaskWriteNotAllowedByStorageManager() {
 		when(storageManager.canWriteMore()).thenReturn(false);
 		storageWriter.new WriteTask(new TimerData(), Collections.emptyMap()).run();
-		verifyZeroInteractions(storageIndexingTreeHandler, extendedByteBufferOutputStream, streamProvider, serializer, serializerQueue, writingChannelManager);
+		verifyZeroInteractions(storageIndexingTreeHandler, extendedByteBufferOutputStream, streamFactory, serializer, serializerQueue, writingChannelManager);
 	}
 
 	@Test
@@ -165,7 +167,7 @@ public class StorageWriterTest {
 		writeTask.run();
 
 		verify(storageIndexingTreeHandler, times(1)).writeFailed(writeTask);
-		verifyZeroInteractions(serializer, serializerQueue, streamProvider, writingChannelManager);
+		verifyZeroInteractions(serializer, serializerQueue, streamFactory, writingChannelManager);
 	}
 
 	@Test
@@ -177,7 +179,7 @@ public class StorageWriterTest {
 		writeTask.run();
 
 		verify(storageIndexingTreeHandler, times(1)).writeFailed(writeTask);
-		verifyZeroInteractions(serializer, serializerQueue, streamProvider, writingChannelManager);
+		verifyZeroInteractions(serializer, serializerQueue, streamFactory, writingChannelManager);
 	}
 
 	@Test
@@ -189,7 +191,7 @@ public class StorageWriterTest {
 		writeTask.run();
 
 		verify(storageIndexingTreeHandler, times(1)).writeFailed(writeTask);
-		verifyZeroInteractions(writingChannelManager, streamProvider, extendedByteBufferOutputStream);
+		verifyZeroInteractions(writingChannelManager, streamFactory, extendedByteBufferOutputStream);
 	}
 
 	@Test
@@ -201,7 +203,7 @@ public class StorageWriterTest {
 		writeTask.run();
 
 		verify(storageIndexingTreeHandler, times(1)).writeFailed(writeTask);
-		verifyZeroInteractions(writingChannelManager, streamProvider, extendedByteBufferOutputStream);
+		verifyZeroInteractions(writingChannelManager, streamFactory, extendedByteBufferOutputStream);
 	}
 
 	@Test
@@ -250,7 +252,7 @@ public class StorageWriterTest {
 		when(serializerQueue.take()).thenReturn(null);
 		storageWriter.writeNonDefaultDataObject(new Object(), "myFile");
 
-		verifyZeroInteractions(writingChannelManager, streamProvider, extendedByteBufferOutputStream);
+		verifyZeroInteractions(writingChannelManager, streamFactory, extendedByteBufferOutputStream);
 	}
 
 	@Test
@@ -258,7 +260,7 @@ public class StorageWriterTest {
 		doThrow(InterruptedException.class).when(serializerQueue).take();
 		storageWriter.writeNonDefaultDataObject(new Object(), "myFile");
 
-		verifyZeroInteractions(writingChannelManager, streamProvider, extendedByteBufferOutputStream);
+		verifyZeroInteractions(writingChannelManager, streamFactory, extendedByteBufferOutputStream);
 	}
 
 	@Test

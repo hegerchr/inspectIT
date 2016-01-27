@@ -98,22 +98,22 @@
 	<logger name="info.novatec.inspectit.cmr.cache.impl.AtomicBuffer" level="info" />
 
 	<!-- Storage, set this to debug for more information about: - storage and failed storage serializations -->
-	<logger name="info.novatec.inspectit.storage" level="info" />
-	<logger name="info.novatec.inspectit.cmr.storage" level="info" />
+	<logger name="info.novatec.inspectit.storage" level="debug" />
+	<logger name="info.novatec.inspectit.cmr.storage" level="debug" />
 
 	<!-- Set this to debug for more information about: - IO write/read -->
-	<logger name="info.novatec.inspectit.storage.nio" level="info" />
-	<logger name="info.novatec.inspectit.storage.write" level="info" />
+	<logger name="info.novatec.inspectit.storage.nio" level="debug" />
+	<logger name="info.novatec.inspectit.storage.write" level="debug" />
 	
 	<!-- Set this to debug for more information about: - serialization -->
-	<logger name="info.novatec.inspectit.storage.serializer" level="info" />
+	<logger name="info.novatec.inspectit.storage.serializer" level="debug" />
 
 	<!-- Set this to debug for more information about: - schema loading for serialization -->
 	<logger name="info.novatec.inspectit.storage.serializer.schema" level="info" />
 	
 	<!-- Needed for bridging minlog to slf4j -->
 	<!-- Set this to debug for more information about libs that use minlog: kryo, kryonet -->
-	<logger name="info.novatec.inspectit.minlog.MinlogToSLF4JLogger" level="warn" />
+	<logger name="info.novatec.inspectit.minlog.MinlogToSLF4JLogger" level="debug" />
 
 	<!-- Set this to debug for more information about: - business exceptions occurring -->
 	<logger name="info.novatec.inspectit.cmr.spring.aop.ExceptionInterceptor" level="info" />
@@ -152,5 +152,8 @@
 
 	<!-- Log only the info level of the c3p0 connection pooling -->
 	<!-- logger name="com.mchange" level="info" / -->
+	
+	<!-- Spring debugging -->
+	<!-- <logger name ="org.springframework" level="debug" /> -->
 
 </configuration>

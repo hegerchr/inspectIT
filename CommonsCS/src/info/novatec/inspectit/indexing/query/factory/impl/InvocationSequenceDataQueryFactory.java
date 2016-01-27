@@ -2,7 +2,6 @@ package info.novatec.inspectit.indexing.query.factory.impl;
 
 import info.novatec.inspectit.communication.data.InvocationSequenceData;
 import info.novatec.inspectit.indexing.IIndexQuery;
-import info.novatec.inspectit.indexing.query.factory.AbstractQueryFactory;
 import info.novatec.inspectit.indexing.restriction.impl.IndexQueryRestrictionFactory;
 
 import java.sql.Timestamp;
@@ -14,17 +13,20 @@ import org.springframework.stereotype.Component;
 
 /**
  * Factory for all queries for the {@link InvocationSequenceData}.
- * 
- * @author Ivan Senic
- * 
- * @param <E>
+ *
+ * @author Ivan Senic, Christoph Heger
+ *
  */
 @Component
-public class InvocationSequenceDataQueryFactory<E extends IIndexQuery> extends AbstractQueryFactory<E> {
+public class InvocationSequenceDataQueryFactory {
 
 	/**
 	 * Returns query for invocation overview.
-	 * 
+	 *
+	 * @param <E>
+	 *            Query of type {@link IIndexQuery}.
+	 * @param query
+	 *            The query to enrich.
 	 * @param platformId
 	 *            The ID of the platform.
 	 * @param methodId
@@ -35,11 +37,10 @@ public class InvocationSequenceDataQueryFactory<E extends IIndexQuery> extends A
 	 *            Date include invocation from.
 	 * @param toDate
 	 *            Date include invocation to.
-	 * 
+	 *
 	 * @return Returns the query for invocation sequence overview.
 	 */
-	public E getInvocationSequenceOverview(long platformId, long methodId, int limit, Date fromDate, Date toDate) {
-		E query = getIndexQueryProvider().getIndexQuery();
+	public <E extends IIndexQuery> E getInvocationSequenceOverview(E query, long platformId, long methodId, int limit, Date fromDate, Date toDate) {
 		query.setPlatformIdent(platformId);
 		query.setMethodIdent(methodId);
 		ArrayList<Class<?>> searchedClasses = new ArrayList<Class<?>>();
@@ -56,7 +57,11 @@ public class InvocationSequenceDataQueryFactory<E extends IIndexQuery> extends A
 
 	/**
 	 * Returns query for invocation overview.
-	 * 
+	 *
+	 * @param <E>
+	 *            Query of type {@link IIndexQuery}.
+	 * @param query
+	 *            The query to enrich.
 	 * @param platformId
 	 *            Platform ID where to look for the objects. If the zero value is passed, looking
 	 *            for the object will be done in all platforms.
@@ -64,11 +69,10 @@ public class InvocationSequenceDataQueryFactory<E extends IIndexQuery> extends A
 	 *            Collections of invocations IDs to search.
 	 * @param limit
 	 *            The limit/size of the list.
-	 * 
+	 *
 	 * @return Returns the query for invocation sequence overview.
 	 */
-	public E getInvocationSequenceOverview(long platformId, Collection<Long> invocationIdCollection, int limit) {
-		E query = getIndexQueryProvider().getIndexQuery();
+	public <E extends IIndexQuery> E getInvocationSequenceOverview(E query, long platformId, Collection<Long> invocationIdCollection, int limit) {
 		query.setPlatformIdent(platformId);
 		ArrayList<Class<?>> searchedClasses = new ArrayList<Class<?>>();
 		searchedClasses.add(InvocationSequenceData.class);

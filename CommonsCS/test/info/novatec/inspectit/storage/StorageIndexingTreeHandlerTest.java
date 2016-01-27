@@ -11,13 +11,14 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+
 import info.novatec.inspectit.cmr.cache.IObjectSizes;
 import info.novatec.inspectit.communication.DefaultData;
 import info.novatec.inspectit.indexing.impl.IndexingException;
 import info.novatec.inspectit.indexing.storage.IStorageDescriptor;
 import info.novatec.inspectit.indexing.storage.IStorageTreeComponent;
+import info.novatec.inspectit.indexing.storage.impl.StorageRootBranchFactory;
 import info.novatec.inspectit.storage.StorageWriter.WriteTask;
-import info.novatec.inspectit.storage.util.StorageIndexTreeProvider;
 
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -39,7 +40,7 @@ public class StorageIndexingTreeHandlerTest {
 	private StorageWriter storageWriter;
 
 	@Mock
-	private StorageIndexTreeProvider<DefaultData> storageIndexTreeProvider;
+	private StorageRootBranchFactory storageIndexTreeFactory;
 
 	@Mock
 	private ScheduledExecutorService executorService;
@@ -56,14 +57,14 @@ public class StorageIndexingTreeHandlerTest {
 
 	@SuppressWarnings("unchecked")
 	@BeforeMethod
-	public void init() {
+	public void init() throws Exception {
 		MockitoAnnotations.initMocks(this);
 		indexingTreeHandler = new StorageIndexingTreeHandler();
 		indexingTreeHandler.registerStorageWriter(storageWriter);
 		indexingTreeHandler.executorService = executorService;
 		indexingTreeHandler.objectSizes = objectSizes;
-		indexingTreeHandler.storageIndexTreeProvider = storageIndexTreeProvider;
-		when(storageIndexTreeProvider.getStorageIndexingTree()).thenReturn(indexingTree);
+		indexingTreeHandler.storageIndexTreeFactory = storageIndexTreeFactory;
+		when(storageIndexTreeFactory.getObject()).thenReturn(indexingTree);
 		when(executorService.scheduleWithFixedDelay(Mockito.<Runnable> anyObject(), anyLong(), anyLong(), Mockito.<TimeUnit> anyObject())).thenReturn(future);
 		indexingTreeHandler.prepare();
 	}

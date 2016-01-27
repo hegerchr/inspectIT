@@ -5,35 +5,44 @@ import info.novatec.inspectit.communication.data.SqlStatementData;
 import info.novatec.inspectit.indexing.AbstractBranch;
 import info.novatec.inspectit.indexing.IIndexQuery;
 import info.novatec.inspectit.indexing.aggregation.Aggregators;
+import info.novatec.inspectit.indexing.impl.IndexQuery;
 import info.novatec.inspectit.indexing.query.factory.impl.SqlStatementDataQueryFactory;
 
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 /**
  * Implementation of the {@link SqlDataDao} that searches for the SQL statements in the indexing
- * tree.
- * <br>The query-Method of {@link AbstractBranch} which uses fork&join is executed, because much SQL- data is expected and 
- * querying with fork&join will be faster.<br>
- * 
- * @author Ivan Senic
- * 
+ * tree. <br>
+ * The query-Method of {@link AbstractBranch} which uses fork&join is executed, because much SQL-
+ * data is expected and querying with fork&join will be faster.<br>
+ *
+ * @author Ivan Senic, Christoph Heger
+ *
  */
 @Repository
 public class BufferSqlDataDaoImpl extends AbstractBufferDataDao<SqlStatementData> implements SqlDataDao {
 
 	/**
+	 * Index query factory.
+	 */
+	@Autowired
+	ObjectFactory<IndexQuery> indexQueryFactory;
+
+	/**
 	 * Index query provider.
 	 */
 	@Autowired
-	private SqlStatementDataQueryFactory<IIndexQuery> sqlDataQueryFactory;
+	private SqlStatementDataQueryFactory sqlDataQueryFactory;
 
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public List<SqlStatementData> getAggregatedSqlStatements(SqlStatementData sqlStatementData) {
 		return this.getAggregatedSqlStatements(sqlStatementData, null, null);
 	}
@@ -41,14 +50,17 @@ public class BufferSqlDataDaoImpl extends AbstractBufferDataDao<SqlStatementData
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public List<SqlStatementData> getAggregatedSqlStatements(SqlStatementData sqlStatementData, Date fromDate, Date toDate) {
-		IIndexQuery query = sqlDataQueryFactory.getAggregatedSqlStatementsQuery(sqlStatementData, fromDate, toDate);
+		IIndexQuery query = indexQueryFactory.getObject();
+		query = sqlDataQueryFactory.getAggregatedSqlStatementsQuery(query, sqlStatementData, fromDate, toDate);
 		return super.executeQuery(query, Aggregators.SQL_STATEMENT_DATA_AGGREGATOR, true);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public List<SqlStatementData> getParameterAggregatedSqlStatements(SqlStatementData sqlStatementData) {
 		return this.getParameterAggregatedSqlStatements(sqlStatementData, null, null);
 	}
@@ -56,8 +68,10 @@ public class BufferSqlDataDaoImpl extends AbstractBufferDataDao<SqlStatementData
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public List<SqlStatementData> getParameterAggregatedSqlStatements(SqlStatementData sqlStatementData, Date fromDate, Date toDate) {
-		IIndexQuery query = sqlDataQueryFactory.getAggregatedSqlStatementsQuery(sqlStatementData, fromDate, toDate);
+		IIndexQuery query = indexQueryFactory.getObject();
+		query = sqlDataQueryFactory.getAggregatedSqlStatementsQuery(query, sqlStatementData, fromDate, toDate);
 		return super.executeQuery(query, Aggregators.SQL_STATEMENT_DATA_PARAMETER_AGGREGATOR, true);
 	}
 

@@ -28,12 +28,12 @@
 		<dependency org="ch.qos.logback" name="logback-classic" rev="1.0.13" conf="prod->default" />
 		<dependency org="uk.org.lidalia" name="info.novatec.sysout-over-slf4j" rev="1.0.2" conf="prod->default" />
 		
-		<dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.spring-context-support" rev="4.2.4.RELEASE_1" conf="prod->default" />
-		<dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.spring-orm" rev="4.2.4.RELEASE_1" conf="prod->default" />
-		<dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.spring-tx" rev="4.2.4.RELEASE_1" conf="prod->default" />
-		<dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.spring-jdbc" rev="4.2.4.RELEASE_1" conf="prod->default" />
-		<dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.spring-webmvc" rev="4.2.4.RELEASE_1" transitive="false" conf="prod->default" />
-		<dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.spring-oxm" rev="4.2.4.RELEASE_1" transitive="false" conf="prod->default" />
+		<dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.spring-context-support" rev="3.2.14.RELEASE_1" conf="prod->default" />
+		<dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.spring-orm" rev="3.2.14.RELEASE_1" conf="prod->default" />
+		<dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.spring-tx" rev="3.2.14.RELEASE_1" conf="prod->default" />
+		<dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.spring-jdbc" rev="3.2.14.RELEASE_1" conf="prod->default" />
+		<dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.spring-webmvc" rev="3.2.14.RELEASE_1" transitive="false" conf="prod->default" />
+		<dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.spring-oxm" rev="3.2.14.RELEASE_1" transitive="false" conf="prod->default" />
 
 		<dependency org="org.aspectj" name="aspectjweaver" rev="1.7.2" conf="prod->default" />
 		<dependency org="org.aspectj" name="aspectjrt" rev="1.7.2" conf="prod->default" />

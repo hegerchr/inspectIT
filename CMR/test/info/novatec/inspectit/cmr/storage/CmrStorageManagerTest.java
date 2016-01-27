@@ -12,6 +12,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 import info.novatec.inspectit.cmr.cache.IBuffer;
 import info.novatec.inspectit.cmr.dao.StorageDataDao;
 import info.novatec.inspectit.cmr.service.IServerStatusService;
@@ -26,7 +27,6 @@ import info.novatec.inspectit.storage.recording.RecordingProperties;
 import info.novatec.inspectit.storage.recording.RecordingState;
 import info.novatec.inspectit.storage.serializer.SerializationException;
 import info.novatec.inspectit.storage.serializer.impl.SerializationManager;
-import info.novatec.inspectit.storage.serializer.provider.SerializationManagerProvider;
 import info.novatec.inspectit.version.VersionService;
 
 import java.io.IOException;
@@ -39,13 +39,14 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeMethod;
@@ -53,9 +54,9 @@ import org.testng.annotations.Test;
 
 /**
  * Test the {@link CmrStorageManager} class.
- * 
- * @author Ivan Senic
- * 
+ *
+ * @author Ivan Senic, Christoph Heger
+ *
  */
 @SuppressWarnings("PMD")
 public class CmrStorageManagerTest extends AbstractTestNGLogSupport {
@@ -71,7 +72,8 @@ public class CmrStorageManagerTest extends AbstractTestNGLogSupport {
 	private StorageDataDao storageDataDao;
 
 	@Mock
-	private CmrStorageWriterProvider storageWriterProvider;
+	@Autowired
+	private ObjectFactory<CmrStorageWriter> storageWriterFactory;
 
 	@Mock
 	private CmrStorageRecorder storageRecorder;
@@ -80,7 +82,8 @@ public class CmrStorageManagerTest extends AbstractTestNGLogSupport {
 	private CmrStorageWriter storageWriter;
 
 	@Mock
-	private SerializationManagerProvider serializationManagerProvider;
+	@Autowired
+	private ObjectFactory<SerializationManager> serializationManagerFactory;
 
 	@Mock
 	private SerializationManager serializer;
@@ -98,7 +101,7 @@ public class CmrStorageManagerTest extends AbstractTestNGLogSupport {
 
 	/**
 	 * Init method.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@BeforeMethod
@@ -107,15 +110,13 @@ public class CmrStorageManagerTest extends AbstractTestNGLogSupport {
 		storageManager = new CmrStorageManager();
 		storageManager.setStorageDefaultFolder("storageTest");
 		storageManager.storageDataDao = storageDataDao;
-		storageManager.storageWriterProvider = storageWriterProvider;
 		storageManager.storageRecorder = storageRecorder;
 		storageManager.buffer = buffer;
-		storageManager.setSerializationManagerProvider(serializationManagerProvider);
 		storageManager.serverStatusService = serverStatusService;
 		storageManager.log = LoggerFactory.getLogger(CmrStorageManager.class);
 		storageManager.versionService = versionService;
-		when(storageWriterProvider.getCmrStorageWriter()).thenReturn(storageWriter);
-		when(serializationManagerProvider.createSerializer()).thenReturn(serializer);
+		when(storageWriterFactory.getObject()).thenReturn(storageWriter);
+		when(serializationManagerFactory.getObject()).thenReturn(serializer);
 		when(versionService.getVersionAsString()).thenReturn(CMR_VERSION);
 
 		Field field = StorageManager.class.getDeclaredField("log");
@@ -162,7 +163,7 @@ public class CmrStorageManagerTest extends AbstractTestNGLogSupport {
 		assertThat(storageManager.getExistingStorages(), hasSize(1));
 		assertThat(storageManager.getOpenedStorages(), hasSize(1));
 		assertThat(storageManager.getReadableStorages(), is(empty()));
-		verify(storageWriterProvider, times(1)).getCmrStorageWriter();
+		verify(storageWriterFactory, times(1)).getObject();
 		verify(storageWriter, times(1)).prepareForWrite(storageData);
 	}
 

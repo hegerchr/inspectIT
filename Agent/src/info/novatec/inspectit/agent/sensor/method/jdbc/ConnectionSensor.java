@@ -12,9 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * This sensor initializes the {@link ConnectionHook} to intercept the creation of
  * {@link PreparedStatement} classes.
- * 
+ *
  * @author Patrice Bouillet
- * 
+ *
  */
 public class ConnectionSensor extends AbstractMethodSensor implements IMethodSensor {
 
@@ -37,7 +37,7 @@ public class ConnectionSensor extends AbstractMethodSensor implements IMethodSen
 
 	/**
 	 * The default constructor which needs one parameter for initialization.
-	 * 
+	 *
 	 * @param statementStorage
 	 *            The statement storage.
 	 */

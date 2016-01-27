@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Patrice Bouillet
- * 
+ *
  */
 public class PreparedStatementParameterSensor extends AbstractMethodSensor implements IMethodSensor {
 
@@ -33,7 +33,7 @@ public class PreparedStatementParameterSensor extends AbstractMethodSensor imple
 
 	/**
 	 * The default constructor which needs one parameter for initialization.
-	 * 
+	 *
 	 * @param statementStorage
 	 *            The statement storage.
 	 */

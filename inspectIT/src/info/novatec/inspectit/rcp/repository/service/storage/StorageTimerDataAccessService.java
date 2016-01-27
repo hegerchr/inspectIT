@@ -10,11 +10,14 @@ import info.novatec.inspectit.indexing.storage.impl.StorageIndexQuery;
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
 /**
  * {@link ITimerDataAccessService} for storage purposes.
- * 
+ *
  * @author Ivan Senic
- * 
+ *
  */
 public class StorageTimerDataAccessService extends AbstractStorageService<TimerData> implements ITimerDataAccessService {
 
@@ -26,11 +29,18 @@ public class StorageTimerDataAccessService extends AbstractStorageService<TimerD
 	/**
 	 * Index query provider.
 	 */
-	private TimerDataQueryFactory<StorageIndexQuery> timerDataQueryFactory;
+	private TimerDataQueryFactory timerDataQueryFactory;
+
+	/**
+	 * {@link ObjectFactory} to create {@link StorageIndexQuery} instances.
+	 */
+	@Autowired
+	private ObjectFactory<StorageIndexQuery> storageIndexQueryFactory;
 
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public List<TimerData> getAggregatedTimerData(TimerData timerData) {
 		return this.getAggregatedTimerData(timerData, null, null);
 	}
@@ -38,14 +48,17 @@ public class StorageTimerDataAccessService extends AbstractStorageService<TimerD
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public List<TimerData> getAggregatedTimerData(TimerData timerData, Date fromDate, Date toDate) {
-		StorageIndexQuery query = timerDataQueryFactory.getAggregatedTimerDataQuery(timerData, fromDate, toDate);
+		StorageIndexQuery query = storageIndexQueryFactory.getObject();
+		query = timerDataQueryFactory.getAggregatedTimerDataQuery(query, timerData, fromDate, toDate);
 		return super.executeQuery(query, Aggregators.TIMER_DATA_AGGREGATOR);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	protected IStorageTreeComponent<TimerData> getIndexingTree() {
 		return indexingTree;
 	}
@@ -62,7 +75,7 @@ public class StorageTimerDataAccessService extends AbstractStorageService<TimerD
 	 * @param timerDataQueryFactory
 	 *            the timerDataQueryFactory to set
 	 */
-	public void setTimerDataQueryFactory(TimerDataQueryFactory<StorageIndexQuery> timerDataQueryFactory) {
+	public void setTimerDataQueryFactory(TimerDataQueryFactory timerDataQueryFactory) {
 		this.timerDataQueryFactory = timerDataQueryFactory;
 	}
 

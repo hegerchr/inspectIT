@@ -13,11 +13,11 @@ import org.springframework.stereotype.Component;
 
 /**
  * Extended index query that fits better when querying the {@link IStorageTreeComponent}.
- * 
+ *
  * @author Ivan Senic
- * 
+ *
  */
-@Component
+@Component("StorageIndexQuery")
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Lazy
 public class StorageIndexQuery extends IndexQuery {
@@ -89,7 +89,7 @@ public class StorageIndexQuery extends IndexQuery {
 
 	/**
 	 * Gets {@link #sql}.
-	 * 
+	 *
 	 * @return {@link #sql}
 	 */
 	public String getSql() {
@@ -98,7 +98,7 @@ public class StorageIndexQuery extends IndexQuery {
 
 	/**
 	 * Sets {@link #sql}.
-	 * 
+	 *
 	 * @param sql
 	 *            New value for {@link #sql}
 	 */

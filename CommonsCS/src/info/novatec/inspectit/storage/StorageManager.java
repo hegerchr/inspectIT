@@ -10,7 +10,7 @@ import info.novatec.inspectit.indexing.storage.impl.StorageDescriptor;
 import info.novatec.inspectit.spring.logger.Log;
 import info.novatec.inspectit.storage.serializer.ISerializer;
 import info.novatec.inspectit.storage.serializer.SerializationException;
-import info.novatec.inspectit.storage.serializer.provider.SerializationManagerProvider;
+import info.novatec.inspectit.storage.serializer.impl.SerializationManager;
 import info.novatec.inspectit.storage.util.DeleteFileVisitor;
 import info.novatec.inspectit.storage.util.StorageDeleteFileVisitor;
 
@@ -36,6 +36,7 @@ import java.util.zip.ZipOutputStream;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -45,9 +46,9 @@ import com.esotericsoftware.kryo.io.Output;
 
 /**
  * Abstract class that defines basic storage functionality and properties.
- * 
- * @author Ivan Senic
- * 
+ *
+ * @author Ivan Senic, Christoph Heger
+ *
  */
 public abstract class StorageManager {
 
@@ -73,7 +74,7 @@ public abstract class StorageManager {
 	 * {@link SerializationManagerProvider}.
 	 */
 	@Autowired
-	private SerializationManagerProvider serializationManagerProvider;
+	protected ObjectFactory<SerializationManager> serializationManagerFactory;
 
 	/**
 	 * Default storage folder.
@@ -98,14 +99,14 @@ public abstract class StorageManager {
 	 * This applies to both hard drive space or max hard drive occupancy.
 	 */
 	@Value("${storage.warnHardDriveByteLeft}")
-	private long warnBytesLeft = 1073741824;
+	private final long warnBytesLeft = 1073741824;
 
 	/**
 	 * Amount of bytes when writing any more data is suspended because of the hard drive space left.
 	 * This applies to both hard drive space or max hard drive occupancy.
 	 */
 	@Value("${storage.stopWriteHardDriveBytesLeft}")
-	private long stopWriteBytesLeft = 104857600;
+	private final long stopWriteBytesLeft = 104857600;
 
 	/**
 	 * Amount of space left for write in bytes. This value is either {@link #maxHardDriveOccupancy}
@@ -121,7 +122,7 @@ public abstract class StorageManager {
 
 	/**
 	 * Returns the {@link Path} for given {@link IStorageIdProvider}.
-	 * 
+	 *
 	 * @param storageData
 	 *            {@link IStorageData} object.
 	 * @return {@link Path} that can be used in IO operations.
@@ -130,7 +131,7 @@ public abstract class StorageManager {
 
 	/**
 	 * Returns the default storage directory as the absolute path.
-	 * 
+	 *
 	 * @return Returns the default storage directory as the absolute path.
 	 */
 	protected abstract Path getDefaultStorageDirPath();
@@ -138,7 +139,7 @@ public abstract class StorageManager {
 	/**
 	 * Returns the {@link Path} of the channel for given {@link StorageData} and
 	 * {@link StorageDescriptor}.
-	 * 
+	 *
 	 * @param storageData
 	 *            {@link IStorageData} object.
 	 * @param descriptor
@@ -151,7 +152,7 @@ public abstract class StorageManager {
 
 	/**
 	 * Returns the {@link Path} of the channel for given {@link StorageData} and ID of the channel.
-	 * 
+	 *
 	 * @param storageData
 	 *            {@link IStorageData} object.
 	 * @param channelId
@@ -164,7 +165,7 @@ public abstract class StorageManager {
 
 	/**
 	 * Returns path for the cached storage data file.
-	 * 
+	 *
 	 * @param storageData
 	 *            {@link StorageData}
 	 * @param hash
@@ -181,7 +182,7 @@ public abstract class StorageManager {
 	 * without ip and port information.
 	 * <p>
 	 * Example locations is: /storageId/descriptorId.itdata
-	 * 
+	 *
 	 * @param storageData
 	 *            {@link StorageData}
 	 * @param descriptor
@@ -197,7 +198,7 @@ public abstract class StorageManager {
 	 * without ip and port information.
 	 * <p>
 	 * Example locations is: /storageId/descriptorId.itdata
-	 * 
+	 *
 	 * @param storageData
 	 *            {@link StorageData}
 	 * @param channelId
@@ -217,7 +218,7 @@ public abstract class StorageManager {
 	/**
 	 * Writes the storage data file to disk (in the default storage directory). If the file already
 	 * exists, it will be deleted.
-	 * 
+	 *
 	 * @param storageData
 	 *            Storage data.
 	 * @throws IOException
@@ -232,7 +233,7 @@ public abstract class StorageManager {
 	/**
 	 * Writes the storage data file to disk (in the default storage directory). If the file already
 	 * exists, it will be deleted.
-	 * 
+	 *
 	 * @param localStorageData
 	 *            Local Storage data.
 	 * @throws IOException
@@ -247,7 +248,7 @@ public abstract class StorageManager {
 	/**
 	 * Writes the storage data file to disk (to the given directory). If the file already exists, it
 	 * will be deleted.
-	 * 
+	 *
 	 * @param storageData
 	 *            Storage data.
 	 * @param dir
@@ -264,7 +265,7 @@ public abstract class StorageManager {
 	/**
 	 * Writes the storage data file to disk (to the given directory). If the file already exists, it
 	 * will be deleted.
-	 * 
+	 *
 	 * @param localStorageData
 	 *            Local Storage data.
 	 * @param dir
@@ -281,7 +282,7 @@ public abstract class StorageManager {
 	/**
 	 * Writes the storage data file to disk (to the given directory). If the file already exists, it
 	 * will be deleted.
-	 * 
+	 *
 	 * @param storageData
 	 *            Object that can provide ID of storage.
 	 * @param extenstion
@@ -306,7 +307,7 @@ public abstract class StorageManager {
 
 	/**
 	 * Serializes given data to the {@link OutputStream}.
-	 * 
+	 *
 	 * @param data
 	 *            Data to serialize.
 	 * @param outputStream
@@ -317,7 +318,7 @@ public abstract class StorageManager {
 	 *             If serialization fails.
 	 */
 	protected void serializeDataToOutputStream(Object data, OutputStream outputStream, boolean closeStream) throws SerializationException {
-		ISerializer serializer = serializationManagerProvider.createSerializer();
+		ISerializer serializer = serializationManagerFactory.getObject();
 		Output output = null;
 		try {
 			output = new Output(outputStream);
@@ -336,7 +337,7 @@ public abstract class StorageManager {
 	/**
 	 * Deletes all files associated with given {@link StorageData}, thus completely removes storage
 	 * from disk.
-	 * 
+	 *
 	 * @param storageData
 	 *            Storage to delete data for.
 	 * @throws IOException
@@ -357,7 +358,7 @@ public abstract class StorageManager {
 	/**
 	 * Deletes all files associated with given {@link StorageData}, but only of a types supplied
 	 * with a fileTypes parameter.
-	 * 
+	 *
 	 * @param storageData
 	 *            Storage to delete data for.
 	 * @param fileTypes
@@ -393,7 +394,7 @@ public abstract class StorageManager {
 
 	/**
 	 * Updates the space left on the hard drive.
-	 * 
+	 *
 	 * @throws IOException
 	 *             IF {@link IOException} occurs.
 	 */
@@ -432,7 +433,7 @@ public abstract class StorageManager {
 	/**
 	 * Compresses the content of the storage data folder to the file. File name is provided via
 	 * given path. If the file already exists, it will be deleted first.
-	 * 
+	 *
 	 * @param storageData
 	 *            {@link StorageData} to zip.
 	 * @param zipPath
@@ -447,7 +448,7 @@ public abstract class StorageManager {
 
 	/**
 	 * Zips all files in the given directory to the provided zipPath.
-	 * 
+	 *
 	 * @param directory
 	 *            Directory where files to be zipped are placed.
 	 * @param zipPath
@@ -486,7 +487,7 @@ public abstract class StorageManager {
 
 	/**
 	 * Returns the {@link StorageData} object that exists in the compressed storage file.
-	 * 
+	 *
 	 * @param zipFilePath
 	 *            Compressed storage file.
 	 * @return StorageData object or <code>null</code> if the given path is not of correct type.
@@ -496,7 +497,7 @@ public abstract class StorageManager {
 			return null;
 		}
 
-		final ISerializer serializer = serializationManagerProvider.createSerializer();
+		final ISerializer serializer = serializationManagerFactory.getObject();
 		try (ZipFile zipFile = new ZipFile(zipFilePath.toFile())) {
 			Enumeration<? extends ZipEntry> entries = zipFile.entries();
 			while (entries.hasMoreElements()) {
@@ -532,7 +533,7 @@ public abstract class StorageManager {
 
 	/**
 	 * Unzips the content of the zip file provided to the default storage folder.
-	 * 
+	 *
 	 * @param zipFilePath
 	 *            Path to the zip file.
 	 * @param destinationPath
@@ -541,7 +542,7 @@ public abstract class StorageManager {
 	 *             If zipFilePath does not exist or destination path does exist.
 	 * @throws IOException
 	 *             If {@link IOException} occurs.
-	 * 
+	 *
 	 */
 	protected void unzipStorageData(final Path zipFilePath, final Path destinationPath) throws BusinessException, IOException {
 		if (Files.notExists(zipFilePath)) {
@@ -592,7 +593,7 @@ public abstract class StorageManager {
 	/**
 	 * Returns true if the data stored in the input stream is in a GZIP format. The input stream
 	 * will be closed at the end.
-	 * 
+	 *
 	 * @param is
 	 *            File to check.
 	 * @return True if the data is in GZIP format, false otherwise.
@@ -607,7 +608,7 @@ public abstract class StorageManager {
 			while (read < 2) {
 				read += is.read(firsTwoBytes, read, 2 - read);
 			}
-			int head = ((int) firsTwoBytes[0] & 0xff) | ((firsTwoBytes[1] << 8) & 0xff00);
+			int head = (firsTwoBytes[0] & 0xff) | ((firsTwoBytes[1] << 8) & 0xff00);
 			return GZIPInputStream.GZIP_MAGIC == head;
 		} finally {
 			if (null != is) {
@@ -622,7 +623,7 @@ public abstract class StorageManager {
 	 * the same hash is used.
 	 * <p>
 	 * Note that if the data is already cached with the same hash, no action will be performed.
-	 * 
+	 *
 	 * @param storageData
 	 *            Storage to hash data for.
 	 * @param data
@@ -650,7 +651,7 @@ public abstract class StorageManager {
 
 	/**
 	 * Returns if the results of this query/aggregator combination can be used for caching.
-	 * 
+	 *
 	 * @param indexQuery
 	 *            {@link IIndexQuery}
 	 * @param aggregator
@@ -677,7 +678,7 @@ public abstract class StorageManager {
 	 * <p>
 	 * <B>WARNING:</b> There is small possibility that we get the hash collision. We are aware of
 	 * this, but we are taking our chances.
-	 * 
+	 *
 	 * @param indexQuery
 	 *            {@link IIndexQuery}, must not be <code>null</code>
 	 * @param aggregator
@@ -698,26 +699,27 @@ public abstract class StorageManager {
 
 	/**
 	 * Gets {@link #serializationManagerProvider}.
-	 * 
+	 *
 	 * @return {@link #serializationManagerProvider}
 	 */
-	public SerializationManagerProvider getSerializationManagerProvider() {
-		return serializationManagerProvider;
-	}
+	// public SerializationManagerProvider getSerializationManagerProvider() {
+	// return serializationManagerProvider;
+	// }
 
 	/**
 	 * Sets {@link #serializationManagerProvider}.
-	 * 
+	 *
 	 * @param serializationManagerProvider
 	 *            New value for {@link #serializationManagerProvider}
 	 */
-	public void setSerializationManagerProvider(SerializationManagerProvider serializationManagerProvider) {
-		this.serializationManagerProvider = serializationManagerProvider;
-	}
+	// public void setSerializationManagerProvider(SerializationManagerProvider
+	// serializationManagerProvider) {
+	// this.serializationManagerProvider = serializationManagerProvider;
+	// }
 
 	/**
 	 * Gets {@link #storageUploadsFolder}.
-	 * 
+	 *
 	 * @return {@link #storageUploadsFolder}
 	 */
 	public String getStorageUploadsFolder() {
@@ -733,7 +735,7 @@ public abstract class StorageManager {
 
 	/**
 	 * <i>This setter can be removed when the Spring3.0 on the GUI side is working properly.</i>
-	 * 
+	 *
 	 * @param storageDefaultFolder
 	 *            the storageDefaultFolder to set
 	 */
@@ -743,7 +745,7 @@ public abstract class StorageManager {
 
 	/**
 	 * Gets {@link #bytesHardDriveOccupancyLeft}.
-	 * 
+	 *
 	 * @return {@link #bytesHardDriveOccupancyLeft}
 	 */
 	public long getBytesHardDriveOccupancyLeft() {
@@ -752,7 +754,7 @@ public abstract class StorageManager {
 
 	/**
 	 * Gets {@link #maxHardDriveOccupancy}.
-	 * 
+	 *
 	 * @return {@link #maxHardDriveOccupancy}
 	 */
 	public long getMaxBytesHardDriveOccupancy() {

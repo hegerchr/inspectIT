@@ -177,8 +177,8 @@ NTSales_Allgemeine_Nutzungsbedingungen_inspectIT_en.doc_V2.0 / 24.07.2012
       <plugin id="org.objenesis"/>
       <plugin id="org.springframework.osgi.core"/>
       <plugin id="org.springframework.osgi.extender"/>
+      <plugin id="org.springframework.osgi.extensions.annotations"/>
       <plugin id="org.springframework.osgi.io"/>
-      <plugin id="org.springframework.web"/>
       <plugin id="slf4j.api"/>
    </plugins>
 

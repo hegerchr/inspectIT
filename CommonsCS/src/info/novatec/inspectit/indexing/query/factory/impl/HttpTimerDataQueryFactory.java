@@ -3,7 +3,6 @@ package info.novatec.inspectit.indexing.query.factory.impl;
 import info.novatec.inspectit.communication.data.AggregatedHttpTimerData;
 import info.novatec.inspectit.communication.data.HttpTimerData;
 import info.novatec.inspectit.indexing.IIndexQuery;
-import info.novatec.inspectit.indexing.query.factory.AbstractQueryFactory;
 import info.novatec.inspectit.indexing.restriction.impl.IndexQueryRestrictionFactory;
 
 import java.sql.Timestamp;
@@ -14,17 +13,20 @@ import org.springframework.stereotype.Component;
 
 /**
  * Factory for all queries for the {@link HttpTimerData}.
- * 
- * @author Ivan Senic
- * 
- * @param <E>
+ *
+ * @author Ivan Senic, Christoph Heger
+ *
  */
 @Component
-public class HttpTimerDataQueryFactory<E extends IIndexQuery> extends AbstractQueryFactory<E> {
+public class HttpTimerDataQueryFactory {
 
 	/**
 	 * Return query for all <code>HttpTimerData</code> objects.
 	 * 
+	 * @param <E>
+	 *            Query of type {@link IIndexQuery}.
+	 * @param query
+	 *            The query to enrich.
 	 * @param httpData
 	 *            <code>HttpTimerData</code> object used to retrieve the platformId
 	 * @param fromDate
@@ -33,8 +35,7 @@ public class HttpTimerDataQueryFactory<E extends IIndexQuery> extends AbstractQu
 	 *            the toDate or <code>null</code> if not applicable
 	 * @return Query for all <code>HttpTimerData</code> objects in the buffer.
 	 */
-	public E getFindAllHttpTimersQuery(HttpTimerData httpData, Date fromDate, Date toDate) {
-		E query = getIndexQueryProvider().getIndexQuery();
+	public <E extends IIndexQuery> E getFindAllHttpTimersQuery(E query, HttpTimerData httpData, Date fromDate, Date toDate) {
 		query.setPlatformIdent(httpData.getPlatformIdent());
 		ArrayList<Class<?>> classesToSearch = new ArrayList<Class<?>>();
 		classesToSearch.add(HttpTimerData.class);
@@ -52,7 +53,11 @@ public class HttpTimerDataQueryFactory<E extends IIndexQuery> extends AbstractQu
 	/**
 	 * Return query for all <code>HttpTimerData</code> objects that have a inspectIT tag header
 	 * value.
-	 * 
+	 *
+	 * @param <E>
+	 *            Query of type {@link IIndexQuery}.
+	 * @param query
+	 *            The query to enrich.
 	 * @param httpData
 	 *            <code>HttpTimerData</code> object used to retrieve the platformId
 	 * @param fromDate
@@ -61,8 +66,7 @@ public class HttpTimerDataQueryFactory<E extends IIndexQuery> extends AbstractQu
 	 *            the toDate or <code>null</code> if not applicable
 	 * @return Query for all <code>HttpTimerData</code> objects in the buffer.
 	 */
-	public E getFindAllTaggedHttpTimersQuery(HttpTimerData httpData, Date fromDate, Date toDate) {
-		E query = getIndexQueryProvider().getIndexQuery();
+	public <E extends IIndexQuery> E getFindAllTaggedHttpTimersQuery(E query, HttpTimerData httpData, Date fromDate, Date toDate) {
 		query.setPlatformIdent(httpData.getPlatformIdent());
 		ArrayList<Class<?>> classesToSearch = new ArrayList<Class<?>>();
 		classesToSearch.add(HttpTimerData.class);

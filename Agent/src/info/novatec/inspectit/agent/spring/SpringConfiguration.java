@@ -27,9 +27,9 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 /**
  * Post process configuration storage to define buffer and sending strategy beans.
- * 
+ *
  * @author Ivan Senic
- * 
+ *
  */
 @Configuration
 @ComponentScan("info.novatec.inspectit")
@@ -61,7 +61,7 @@ public class SpringConfiguration implements BeanDefinitionRegistryPostProcessor 
 
 	/**
 	 * Returns {@link PropertyPlaceholderConfigurer} for the Agent.
-	 * 
+	 *
 	 * @return Returns {@link PropertyPlaceholderConfigurer} for the Agent.
 	 */
 	@Bean
@@ -82,7 +82,7 @@ public class SpringConfiguration implements BeanDefinitionRegistryPostProcessor 
 		ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("inspectit-socket-read-executor-service-thread-%d").setDaemon(true).build();
 		return Executors.newFixedThreadPool(1, threadFactory);
 	}
-	
+
 	/**
 	 * @return Returns coreServiceExecutorService
 	 */
@@ -95,7 +95,7 @@ public class SpringConfiguration implements BeanDefinitionRegistryPostProcessor 
 
 	/**
 	 * Registers components needed by the configuration to the Spring container.
-	 * 
+	 *
 	 * @param configurationStorage
 	 *            {@link IConfigurationStorage} with the settings.
 	 * @throws Exception
@@ -137,7 +137,7 @@ public class SpringConfiguration implements BeanDefinitionRegistryPostProcessor 
 	 * <i>This is the only way to initialize the bean definitions that no other component has
 	 * dependency to, since we add the definitions in the moment when the lookup has been finished
 	 * and bean creation has started.</i>
-	 * 
+	 *
 	 * @param beanName
 	 *            Name of the bean to register.
 	 * @param className
@@ -153,5 +153,10 @@ public class SpringConfiguration implements BeanDefinitionRegistryPostProcessor 
 		definition.setAutowireCandidate(true);
 		registry.registerBeanDefinition(beanName, definition);
 		beanFactory.getBean(beanName, clazz);
+
+		// BeanDefinitionBuilder beanDefinitionBuilder =
+		// BeanDefinitionBuilder.genericBeanDefinition(clazz).setAutowireMode(1);
+		// registry.registerBeanDefinition(beanName, beanDefinitionBuilder.getBeanDefinition());
 	}
+
 }

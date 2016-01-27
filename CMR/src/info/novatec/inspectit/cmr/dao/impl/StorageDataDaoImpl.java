@@ -8,8 +8,8 @@ import info.novatec.inspectit.exception.BusinessException;
 import info.novatec.inspectit.exception.enumeration.StorageErrorCodeEnum;
 import info.novatec.inspectit.indexing.IIndexQuery;
 import info.novatec.inspectit.indexing.buffer.IBufferTreeComponent;
+import info.novatec.inspectit.indexing.impl.IndexQuery;
 import info.novatec.inspectit.indexing.impl.IndexingException;
-import info.novatec.inspectit.indexing.query.provider.impl.IndexQueryProvider;
 import info.novatec.inspectit.indexing.restriction.impl.IndexQueryRestrictionFactory;
 import info.novatec.inspectit.storage.label.AbstractStorageLabel;
 import info.novatec.inspectit.storage.label.StringStorageLabel;
@@ -36,6 +36,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -45,18 +46,18 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * DAO support for the storage purposes.
- * 
- * @author Ivan Senic
- * 
+ *
+ * @author Ivan Senic, Christoph Heger
+ *
  */
 @Repository
 public class StorageDataDaoImpl implements StorageDataDao {
 
 	/**
-	 * {@link IndexQueryProvider}.
+	 * {@link ObjectFactory}.
 	 */
 	@Autowired
-	private IndexQueryProvider indexQueryProvider;
+	private ObjectFactory<IndexQuery> indexQueryFactory;
 
 	/**
 	 * {@link IndexingException} tree.
@@ -73,14 +74,14 @@ public class StorageDataDaoImpl implements StorageDataDao {
 	/**
 	 * Transaction template to use to do init work.
 	 */
-	private TransactionTemplate tt;
+	private final TransactionTemplate tt;
 
 	/**
 	 * Default constructor.
 	 * <p>
 	 * Needs {@link PlatformTransactionManager} for instantiating the {@link TransactionTemplate} to
 	 * execute the initialization.
-	 * 
+	 *
 	 * @param transactionManager
 	 *            {@link PlatformTransactionManager}. Autowired by Spring.
 	 */
@@ -92,6 +93,7 @@ public class StorageDataDaoImpl implements StorageDataDao {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public boolean saveLabel(AbstractStorageLabel<?> label) {
 		if (label.getStorageLabelType().isValueReusable()) {
 			List<?> exampleFind = loadAll(label.getClass());
@@ -113,6 +115,7 @@ public class StorageDataDaoImpl implements StorageDataDao {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void removeLabel(AbstractStorageLabel<?> label) {
 		if (label.getStorageLabelType().isValueReusable()) {
 			entityManager.remove(label);
@@ -122,6 +125,7 @@ public class StorageDataDaoImpl implements StorageDataDao {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void removeLabels(Collection<AbstractStorageLabel<?>> labels) {
 		for (AbstractStorageLabel<?> label : labels) {
 			this.removeLabel(label);
@@ -131,6 +135,7 @@ public class StorageDataDaoImpl implements StorageDataDao {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public List<AbstractStorageLabel<?>> getAllLabels() {
 		Query query = entityManager.createNamedQuery(AbstractStorageLabel.FIND_ALL);
@@ -140,6 +145,7 @@ public class StorageDataDaoImpl implements StorageDataDao {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public <E> List<AbstractStorageLabel<E>> getAllLabelsForType(AbstractStorageLabelType<E> labelType) {
 		Query query = entityManager.createNamedQuery(AbstractStorageLabel.FIND_BY_LABEL_TYPE);
@@ -150,6 +156,7 @@ public class StorageDataDaoImpl implements StorageDataDao {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void saveLabelType(AbstractStorageLabelType<?> labelType) {
 		if (labelType.isMultiType()) {
 			entityManager.persist(labelType);
@@ -165,6 +172,7 @@ public class StorageDataDaoImpl implements StorageDataDao {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void removeLabelType(AbstractStorageLabelType<?> labelType) throws BusinessException {
 		if (getAllLabelsForType(labelType).isEmpty()) {
 			entityManager.remove(labelType);
@@ -176,6 +184,7 @@ public class StorageDataDaoImpl implements StorageDataDao {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public <E extends AbstractStorageLabelType<?>> List<E> getLabelTypes(Class<E> labelTypeClass) {
 		return loadAll(labelTypeClass);
 	}
@@ -183,6 +192,7 @@ public class StorageDataDaoImpl implements StorageDataDao {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public List<AbstractStorageLabelType<?>> getAllLabelTypes() {
 		Query query = entityManager.createNamedQuery(AbstractStorageLabelType.FIND_ALL);
@@ -192,11 +202,12 @@ public class StorageDataDaoImpl implements StorageDataDao {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public List<DefaultData> getAllDefaultDataForAgent(long platformId, Date fromDate, Date toDate) {
 		List<DefaultData> results = new ArrayList<>();
 
 		// first load all from buffer
-		IIndexQuery query = indexQueryProvider.createNewIndexQuery();
+		IIndexQuery query = indexQueryFactory.getObject();
 		query.setPlatformIdent(platformId);
 		if (null != fromDate) {
 			query.setFromDate(new Timestamp(fromDate.getTime()));
@@ -248,7 +259,7 @@ public class StorageDataDaoImpl implements StorageDataDao {
 	 */
 	@Override
 	public List<DefaultData> getDataFromIdList(Collection<Long> elementIds, long platformIdent) {
-		IIndexQuery query = indexQueryProvider.createNewIndexQuery();
+		IIndexQuery query = indexQueryFactory.getObject();
 		query.addIndexingRestriction(IndexQueryRestrictionFactory.isInCollection("id", elementIds));
 		query.setPlatformIdent(platformIdent);
 		return indexingTree.query(query);
@@ -257,6 +268,7 @@ public class StorageDataDaoImpl implements StorageDataDao {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public List<SystemInformationData> getSystemInformationData(Collection<Long> agentIds) {
 		Query query = entityManager.createNamedQuery(SystemInformationData.FIND_LATEST_FOR_PLATFORM_IDS);
@@ -328,7 +340,7 @@ public class StorageDataDaoImpl implements StorageDataDao {
 
 	/**
 	 * Loads all entities of one class.
-	 * 
+	 *
 	 * @param <E>
 	 *            Type of entity.
 	 * @param clazz

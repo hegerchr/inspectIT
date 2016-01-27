@@ -8,7 +8,6 @@ import info.novatec.inspectit.communication.data.InvocationSequenceData;
 import info.novatec.inspectit.communication.data.cmr.AgentStatusData;
 import info.novatec.inspectit.exception.BusinessException;
 import info.novatec.inspectit.exception.enumeration.AgentManagementErrorCodeEnum;
-import info.novatec.inspectit.indexing.query.provider.impl.StorageIndexQueryProvider;
 import info.novatec.inspectit.indexing.storage.IStorageTreeComponent;
 import info.novatec.inspectit.indexing.storage.impl.StorageIndexQuery;
 
@@ -24,13 +23,15 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * {@link IGlobalDataAccessService} for storage purposes. This class indirectly uses the
  * {@link AbstractCachedGlobalDataAccessService} to cache the data.
- * 
+ *
  * @author Ivan Senic
- * 
+ *
  */
 public class StorageGlobalDataAccessService extends AbstractStorageService<DefaultData> implements IGlobalDataAccessService {
 
@@ -45,13 +46,15 @@ public class StorageGlobalDataAccessService extends AbstractStorageService<Defau
 	private IStorageTreeComponent<DefaultData> indexingTree;
 
 	/**
-	 * {@link StorageIndexQueryProvider}.
+	 * {@link ObjectFactory} to create {@link StorageIndexQuery} instances.
 	 */
-	private StorageIndexQueryProvider storageIndexQueryProvider;
+	@Autowired
+	private ObjectFactory<StorageIndexQuery> storageIndexQueryProvider;
 
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public Map<PlatformIdent, AgentStatusData> getAgentsOverview() {
 		Map<PlatformIdent, AgentStatusData> result = new HashMap<PlatformIdent, AgentStatusData>();
 		for (PlatformIdent platformIdent : agents) {
@@ -63,6 +66,7 @@ public class StorageGlobalDataAccessService extends AbstractStorageService<Defau
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public PlatformIdent getCompleteAgent(long id) throws BusinessException {
 		for (PlatformIdent platformIdent : agents) {
 			if (platformIdent.getId().longValue() == id) {
@@ -77,12 +81,14 @@ public class StorageGlobalDataAccessService extends AbstractStorageService<Defau
 	 * <p>
 	 * Agents can not be deleted on the Storage.
 	 */
+	@Override
 	public void deleteAgent(long platformId) throws BusinessException {
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public List<DefaultData> getLastDataObjects(DefaultData template, long timeInterval) {
 		Timestamp toDate = new Timestamp(new Date().getTime());
 		Timestamp fromDate = new Timestamp(toDate.getTime() - timeInterval);
@@ -92,8 +98,9 @@ public class StorageGlobalDataAccessService extends AbstractStorageService<Defau
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public DefaultData getLastDataObject(DefaultData template) {
-		StorageIndexQuery query = storageIndexQueryProvider.createNewStorageIndexQuery();
+		StorageIndexQuery query = storageIndexQueryProvider.getObject();
 		query.setMinId(template.getId());
 		ArrayList<Class<?>> searchClasses = new ArrayList<Class<?>>();
 		searchClasses.add(template.getClass());
@@ -120,8 +127,9 @@ public class StorageGlobalDataAccessService extends AbstractStorageService<Defau
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public List<DefaultData> getDataObjectsSinceId(DefaultData template) {
-		StorageIndexQuery query = storageIndexQueryProvider.createNewStorageIndexQuery();
+		StorageIndexQuery query = storageIndexQueryProvider.getObject();
 		query.setMinId(template.getId());
 		ArrayList<Class<?>> searchClasses = new ArrayList<Class<?>>();
 		searchClasses.add(template.getClass());
@@ -141,8 +149,9 @@ public class StorageGlobalDataAccessService extends AbstractStorageService<Defau
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public List<DefaultData> getDataObjectsSinceIdIgnoreMethodId(DefaultData template) {
-		StorageIndexQuery query = storageIndexQueryProvider.createNewStorageIndexQuery();
+		StorageIndexQuery query = storageIndexQueryProvider.getObject();
 		query.setMinId(template.getId());
 		ArrayList<Class<?>> searchClasses = new ArrayList<Class<?>>();
 		searchClasses.add(template.getClass());
@@ -155,6 +164,7 @@ public class StorageGlobalDataAccessService extends AbstractStorageService<Defau
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public List<? extends DefaultData> getDataObjectsFromToDate(DefaultData template, Date fromDate, Date toDate) {
 		if (fromDate.after(toDate)) {
 			return Collections.emptyList();
@@ -181,7 +191,7 @@ public class StorageGlobalDataAccessService extends AbstractStorageService<Defau
 
 	/**
 	 * Returns data objects in wanted interval based on the wanted template.
-	 * 
+	 *
 	 * @param template
 	 *            Template to base search on.
 	 * @param fromDate
@@ -191,7 +201,7 @@ public class StorageGlobalDataAccessService extends AbstractStorageService<Defau
 	 * @return List of {@link DefaultData} objects.
 	 */
 	private List<DefaultData> getDataObjectsInInterval(DefaultData template, Timestamp fromDate, Timestamp toDate) {
-		StorageIndexQuery query = storageIndexQueryProvider.createNewStorageIndexQuery();
+		StorageIndexQuery query = storageIndexQueryProvider.getObject();
 		ArrayList<Class<?>> searchClasses = new ArrayList<Class<?>>();
 		searchClasses.add(template.getClass());
 		query.setObjectClasses(searchClasses);
@@ -229,6 +239,7 @@ public class StorageGlobalDataAccessService extends AbstractStorageService<Defau
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	protected IStorageTreeComponent<DefaultData> getIndexingTree() {
 		return indexingTree;
 	}
@@ -239,14 +250,6 @@ public class StorageGlobalDataAccessService extends AbstractStorageService<Defau
 	 */
 	public void setIndexingTree(IStorageTreeComponent<DefaultData> indexingTree) {
 		this.indexingTree = indexingTree;
-	}
-
-	/**
-	 * @param storageIndexQueryProvider
-	 *            the storageIndexQueryProvider to set
-	 */
-	public void setStorageIndexQueryProvider(StorageIndexQueryProvider storageIndexQueryProvider) {
-		this.storageIndexQueryProvider = storageIndexQueryProvider;
 	}
 
 }

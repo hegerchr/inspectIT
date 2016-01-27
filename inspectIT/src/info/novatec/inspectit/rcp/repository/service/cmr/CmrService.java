@@ -1,15 +1,15 @@
 package info.novatec.inspectit.rcp.repository.service.cmr;
 
 import info.novatec.inspectit.rcp.repository.CmrRepositoryDefinition;
-import info.novatec.inspectit.storage.serializer.provider.SerializationManagerProvider;
+import info.novatec.inspectit.storage.serializer.impl.SerializationManagerFactory;
 
 import org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean;
 
 /**
  * Abstract class for all {@link CmrRepositoryDefinition} service classes.
- * 
+ *
  * @author Ivan Senic
- * 
+ *
  */
 public class CmrService implements ICmrService {
 
@@ -46,7 +46,7 @@ public class CmrService implements ICmrService {
 	/**
 	 * The serialization manager for kryo.
 	 */
-	private SerializationManagerProvider serializationManagerProvider;
+	private SerializationManagerFactory serializationManagerProvider;
 
 	/**
 	 * Defines if the default value should be returned when communication errors occurs in the
@@ -57,6 +57,7 @@ public class CmrService implements ICmrService {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void initService(CmrRepositoryDefinition cmrRepositoryDefinition) {
 		this.cmrRepositoryDefinition = cmrRepositoryDefinition;
 		HttpInvokerProxyFactoryBean httpInvokerProxyFactoryBean = new HttpInvokerProxyFactoryBean();
@@ -82,6 +83,7 @@ public class CmrService implements ICmrService {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public CmrRepositoryDefinition getCmrRepositoryDefinition() {
 		return cmrRepositoryDefinition;
 	}
@@ -89,13 +91,14 @@ public class CmrService implements ICmrService {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public Object getService() {
 		return service;
 	}
 
 	/**
 	 * Sets {@link #serviceInterface}.
-	 * 
+	 *
 	 * @param serviceInterface
 	 *            New value for {@link #serviceInterface}
 	 */
@@ -105,7 +108,7 @@ public class CmrService implements ICmrService {
 
 	/**
 	 * Gets {@link #serviceInterface}.
-	 * 
+	 *
 	 * @return {@link #serviceInterface}
 	 */
 	public Class<?> getServiceInterface() {
@@ -114,7 +117,7 @@ public class CmrService implements ICmrService {
 
 	/**
 	 * Sets {@link #serviceName}.
-	 * 
+	 *
 	 * @param serviceName
 	 *            New value for {@link #serviceName}
 	 */
@@ -124,26 +127,27 @@ public class CmrService implements ICmrService {
 
 	/**
 	 * Sets {@link #serializationManagerProvider}.
-	 * 
+	 *
 	 * @param serializationManagerProvider
 	 *            New value for {@link #serializationManagerProvider}
 	 */
-	public void setSerializationManagerProvider(SerializationManagerProvider serializationManagerProvider) {
+	public void setSerializationManagerProvider(SerializationManagerFactory serializationManagerProvider) {
 		this.serializationManagerProvider = serializationManagerProvider;
 	}
 
 	/**
 	 * Gets {@link #defaultValueOnError}.
-	 * 
+	 *
 	 * @return {@link #defaultValueOnError}
 	 */
+	@Override
 	public boolean isDefaultValueOnError() {
 		return defaultValueOnError;
 	}
 
 	/**
 	 * Sets {@link #defaultValueOnError}.
-	 * 
+	 *
 	 * @param defaultValueOnError
 	 *            New value for {@link #defaultValueOnError}
 	 */

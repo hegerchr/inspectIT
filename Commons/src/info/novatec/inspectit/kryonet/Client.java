@@ -8,7 +8,8 @@ import static com.esotericsoftware.minlog.Log.debug;
 import static com.esotericsoftware.minlog.Log.error;
 import static com.esotericsoftware.minlog.Log.info;
 import static com.esotericsoftware.minlog.Log.trace;
-import info.novatec.inspectit.storage.nio.stream.StreamProvider;
+
+import info.novatec.inspectit.storage.nio.stream.StreamFactory;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -38,11 +39,11 @@ import com.esotericsoftware.kryonet.KryoNetException;
 /**
  * Represents a TCP and optionally a UDP connection to a {@link Server}.
  * <p>
- * <b>IMPORTANT:</b> The class code is copied/taken/based from <a
- * href="https://github.com/EsotericSoftware/kryonet">kryonet</a>. Original author is Nathan Sweet.
- * License info can be found <a
- * href="https://github.com/EsotericSoftware/kryonet/blob/master/license.txt">here</a>.
- * 
+ * <b>IMPORTANT:</b> The class code is copied/taken/based from
+ * <a href="https://github.com/EsotericSoftware/kryonet">kryonet</a>. Original author is Nathan
+ * Sweet. License info can be found
+ * <a href="https://github.com/EsotericSoftware/kryonet/blob/master/license.txt">here</a>.
+ *
  * @author Nathan Sweet <misc@n4te.com>
  */
 @SuppressWarnings("all")
@@ -60,8 +61,8 @@ public class Client extends Connection implements EndPoint {
 	private Selector selector;
 	private int emptySelects;
 	private volatile boolean tcpRegistered, udpRegistered;
-	private Object tcpRegistrationLock = new Object();
-	private Object udpRegistrationLock = new Object();
+	private final Object tcpRegistrationLock = new Object();
+	private final Object udpRegistrationLock = new Object();
 	private volatile boolean shutdown;
 	private final Object updateLock = new Object();
 	private Thread updateThread;
@@ -74,13 +75,13 @@ public class Client extends Connection implements EndPoint {
 	// ISE: Removed no-arg and 2-args constructors (not needed)
 
 	// Added by ISE
-	public Client(IExtendedSerialization serialization, StreamProvider streamProvider) {
-		this(0, serialization.getLengthLength(), serialization, streamProvider);
+	public Client(IExtendedSerialization serialization, StreamFactory streamFactory) {
+		this(0, serialization.getLengthLength(), serialization, streamFactory);
 	}
 
-	// Changed by ISE: added StreamProvider, changed to IExtendedSerialization
-	public Client(int writeBufferSize, int objectBufferSize, IExtendedSerialization serialization, StreamProvider streamProvider) {
-		super(streamProvider);
+	// Changed by ISE: changed to IExtendedSerialization
+	public Client(int writeBufferSize, int objectBufferSize, IExtendedSerialization serialization, StreamFactory streamFactory) {
+		super(streamFactory);
 		endPoint = this;
 
 		this.serialization = serialization;
@@ -104,7 +105,7 @@ public class Client extends Connection implements EndPoint {
 
 	/**
 	 * Opens a TCP only client.
-	 * 
+	 *
 	 * @see #connect(int, InetAddress, int, int)
 	 */
 	public void connect(int timeout, String host, int tcpPort) throws IOException {
@@ -113,7 +114,7 @@ public class Client extends Connection implements EndPoint {
 
 	/**
 	 * Opens a TCP and UDP client.
-	 * 
+	 *
 	 * @see #connect(int, InetAddress, int, int)
 	 */
 	public void connect(int timeout, String host, int tcpPort, int udpPort) throws IOException {
@@ -122,7 +123,7 @@ public class Client extends Connection implements EndPoint {
 
 	/**
 	 * Opens a TCP only client.
-	 * 
+	 *
 	 * @see #connect(int, InetAddress, int, int)
 	 */
 	public void connect(int timeout, InetAddress host, int tcpPort) throws IOException {
@@ -136,32 +137,37 @@ public class Client extends Connection implements EndPoint {
 	 * Because the framework must perform some minimal communication before the connection is
 	 * considered successful, {@link #update(int)} must be called on a separate thread during the
 	 * connection process.
-	 * 
-	 * @throws IllegalStateException
-	 *             if called from the connection's update thread.
+	 *
 	 * @throws IOException
 	 *             if the client could not be opened or connecting times out.
+	 *
+	 * @throws IllegalStateException
+	 *             if called from the connection's update thread.
 	 */
 	public void connect(int timeout, InetAddress host, int tcpPort, int udpPort) throws IOException {
-		if (host == null)
+		if (host == null) {
 			throw new IllegalArgumentException("host cannot be null.");
-		if (Thread.currentThread() == getUpdateThread())
+		}
+		if (Thread.currentThread() == getUpdateThread()) {
 			throw new IllegalStateException("Cannot connect on the connection's update thread.");
+		}
 		this.connectTimeout = timeout;
 		this.connectHost = host;
 		this.connectTcpPort = tcpPort;
 		this.connectUdpPort = udpPort;
 		close();
 		if (INFO) {
-			if (udpPort != -1)
+			if (udpPort != -1) {
 				info("Connecting: " + host + ":" + tcpPort + "/" + udpPort);
-			else
+			} else {
 				info("Connecting: " + host + ":" + tcpPort);
+			}
 		}
 		id = -1;
 		try {
-			if (udpPort != -1)
+			if (udpPort != -1) {
 				udp = new UdpConnection(serialization, tcp.readBuffer.capacity());
+			}
 
 			long endTime;
 			synchronized (updateLock) {
@@ -203,8 +209,9 @@ public class Client extends Connection implements EndPoint {
 						} catch (InterruptedException ignored) {
 						}
 					}
-					if (!udpRegistered)
+					if (!udpRegistered) {
 						throw new SocketTimeoutException("Connected, but timed out during UDP registration: " + host + ":" + udpPort);
+					}
 				}
 			}
 		} catch (IOException ex) {
@@ -215,7 +222,7 @@ public class Client extends Connection implements EndPoint {
 
 	/**
 	 * Calls {@link #connect(int, InetAddress, int) connect} with the values last passed to connect.
-	 * 
+	 *
 	 * @throws IllegalStateException
 	 *             if connect has never been called.
 	 */
@@ -226,20 +233,21 @@ public class Client extends Connection implements EndPoint {
 	/**
 	 * Calls {@link #connect(int, InetAddress, int) connect} with the specified timeout and the
 	 * other values last passed to connect.
-	 * 
+	 *
 	 * @throws IllegalStateException
 	 *             if connect has never been called.
 	 */
 	public void reconnect(int timeout) throws IOException {
-		if (connectHost == null)
+		if (connectHost == null) {
 			throw new IllegalStateException("This client has never been connected.");
+		}
 		connect(connectTimeout, connectHost, connectTcpPort, connectUdpPort);
 	}
 
 	/**
 	 * Reads or writes any pending data for this client. Multiple threads should not call this
 	 * method at the same time.
-	 * 
+	 *
 	 * @param timeout
 	 *            Wait for up to the specified milliseconds for data to be ready to process. May be
 	 *            zero to return immediately if there is no data to process.
@@ -264,8 +272,9 @@ public class Client extends Connection implements EndPoint {
 				// the CPU.
 				long elapsedTime = System.currentTimeMillis() - startTime;
 				try {
-					if (elapsedTime < 25)
+					if (elapsedTime < 25) {
 						Thread.sleep(25 - elapsedTime);
+					}
 				} catch (InterruptedException ex) {
 				}
 			}
@@ -283,21 +292,25 @@ public class Client extends Connection implements EndPoint {
 							if (selectionKey.attachment() == tcp) {
 								while (true) {
 									Object object = tcp.readObject(this);
-									if (object == null)
+									if (object == null) {
 										break;
+									}
 									if (!tcpRegistered) {
 										if (object instanceof RegisterTCP) {
 											id = ((RegisterTCP) object).connectionID;
 											synchronized (tcpRegistrationLock) {
 												tcpRegistered = true;
 												tcpRegistrationLock.notifyAll();
-												if (TRACE)
+												if (TRACE) {
 													trace("kryonet", this + " received TCP: RegisterTCP");
-												if (udp == null)
+												}
+												if (udp == null) {
 													setConnected(true);
+												}
 											}
-											if (udp == null)
+											if (udp == null) {
 												notifyConnected();
+											}
 										}
 										continue;
 									}
@@ -306,8 +319,9 @@ public class Client extends Connection implements EndPoint {
 											synchronized (udpRegistrationLock) {
 												udpRegistered = true;
 												udpRegistrationLock.notifyAll();
-												if (TRACE)
+												if (TRACE) {
 													trace("kryonet", this + " received UDP: RegisterUDP");
+												}
 												if (DEBUG) {
 													debug("kryonet", "Port " + udp.datagramChannel.socket().getLocalPort() + "/UDP connected to: " + udp.connectedAddress);
 												}
@@ -317,8 +331,9 @@ public class Client extends Connection implements EndPoint {
 										}
 										continue;
 									}
-									if (!isConnected)
+									if (!isConnected) {
 										continue;
+									}
 									keepAlive();
 									if (DEBUG) {
 										String objectString = object == null ? "null" : object.getClass().getSimpleName();
@@ -331,11 +346,13 @@ public class Client extends Connection implements EndPoint {
 									notifyReceived(object);
 								}
 							} else {
-								if (udp.readFromAddress() == null)
+								if (udp.readFromAddress() == null) {
 									continue;
+								}
 								Object object = udp.readObject(this);
-								if (object == null)
+								if (object == null) {
 									continue;
+								}
 								keepAlive();
 								if (DEBUG) {
 									String objectString = object == null ? "null" : object.getClass().getSimpleName();
@@ -344,8 +361,9 @@ public class Client extends Connection implements EndPoint {
 								notifyReceived(object);
 							}
 						}
-						if ((ops & SelectionKey.OP_WRITE) == SelectionKey.OP_WRITE)
+						if ((ops & SelectionKey.OP_WRITE) == SelectionKey.OP_WRITE) {
 							tcp.writeOperation();
+						}
 					} catch (CancelledKeyException ignored) {
 						// Connection is closed.
 					}
@@ -355,60 +373,70 @@ public class Client extends Connection implements EndPoint {
 		if (isConnected) {
 			long time = System.currentTimeMillis();
 			if (tcp.isTimedOut(time)) {
-				if (DEBUG)
+				if (DEBUG) {
 					debug("kryonet", this + " timed out.");
+				}
 				close();
 			} else {
 				keepAlive();
 			}
-			if (isIdle())
+			if (isIdle()) {
 				notifyIdle();
+			}
 		}
 	}
 
 	void keepAlive() {
-		if (!isConnected)
+		if (!isConnected) {
 			return;
+		}
 		long time = System.currentTimeMillis();
-		if (tcp.needsKeepAlive(time))
+		if (tcp.needsKeepAlive(time)) {
 			sendTCP(FrameworkMessage.keepAlive);
-		if (udp != null && udpRegistered && udp.needsKeepAlive(time))
+		}
+		if (udp != null && udpRegistered && udp.needsKeepAlive(time)) {
 			sendUDP(FrameworkMessage.keepAlive);
+		}
 	}
 
 	public void run() {
-		if (TRACE)
+		if (TRACE) {
 			trace("kryonet", "Client thread started.");
+		}
 		shutdown = false;
 		while (!shutdown) {
 			try {
 				update(250);
 			} catch (IOException ex) {
 				if (TRACE) {
-					if (isConnected)
+					if (isConnected) {
 						trace("kryonet", "Unable to update connection: " + this, ex);
-					else
+					} else {
 						trace("kryonet", "Unable to update connection.", ex);
+					}
 				} else if (DEBUG) {
-					if (isConnected)
+					if (isConnected) {
 						debug("kryonet", this + " update: " + ex.getMessage());
-					else
+					} else {
 						debug("kryonet", "Unable to update connection: " + ex.getMessage());
+					}
 				}
 				close();
 			} catch (KryoNetException ex) {
 				if (ERROR) {
-					if (isConnected)
+					if (isConnected) {
 						error("kryonet", "Error updating connection: " + this, ex);
-					else
+					} else {
 						error("kryonet", "Error updating connection.", ex);
+					}
 				}
 				close();
 				throw ex;
 			}
 		}
-		if (TRACE)
+		if (TRACE) {
 			trace("kryonet", "Client thread stopped.");
+		}
 	}
 
 	public void start() {
@@ -426,15 +454,18 @@ public class Client extends Connection implements EndPoint {
 	}
 
 	public void stop() {
-		if (shutdown)
+		if (shutdown) {
 			return;
+		}
 		close();
-		if (TRACE)
+		if (TRACE) {
 			trace("kryonet", "Client thread stopping.");
+		}
 		shutdown = true;
 		selector.wakeup();
 	}
 
+	@Override
 	public void close() {
 		super.close();
 		// Select one last time to complete closing the socket.
@@ -450,16 +481,20 @@ public class Client extends Connection implements EndPoint {
 		}
 	}
 
+	@Override
 	public void addListener(Listener listener) {
 		super.addListener(listener);
-		if (TRACE)
+		if (TRACE) {
 			trace("kryonet", "Client listener added.");
+		}
 	}
 
+	@Override
 	public void removeListener(Listener listener) {
 		super.removeListener(listener);
-		if (TRACE)
+		if (TRACE) {
 			trace("kryonet", "Client listener removed.");
+		}
 	}
 
 	/**
@@ -469,8 +504,9 @@ public class Client extends Connection implements EndPoint {
 	 * to 19000.
 	 */
 	public void setKeepAliveUDP(int keepAliveMillis) {
-		if (udp == null)
+		if (udp == null) {
 			throw new IllegalStateException("Not connected via UDP.");
+		}
 		udp.keepAliveMillis = keepAliveMillis;
 	}
 
@@ -500,14 +536,15 @@ public class Client extends Connection implements EndPoint {
 				}
 			}
 		}
-		if (DEBUG)
+		if (DEBUG) {
 			debug("kryonet", "Broadcasted host discovery on port: " + udpPort);
+		}
 	}
 
 	/**
 	 * Broadcasts a UDP message on the LAN to discover any running servers. The address of the first
 	 * server to respond is returned.
-	 * 
+	 *
 	 * @param udpPort
 	 *            The UDP port of the server.
 	 * @param timeoutMillis
@@ -524,26 +561,30 @@ public class Client extends Connection implements EndPoint {
 			try {
 				socket.receive(packet);
 			} catch (SocketTimeoutException ex) {
-				if (INFO)
+				if (INFO) {
 					info("kryonet", "Host discovery timed out.");
+				}
 				return null;
 			}
-			if (INFO)
+			if (INFO) {
 				info("kryonet", "Discovered server: " + packet.getAddress());
+			}
 			return packet.getAddress();
 		} catch (IOException ex) {
-			if (ERROR)
+			if (ERROR) {
 				error("kryonet", "Host discovery failed.", ex);
+			}
 			return null;
 		} finally {
-			if (socket != null)
+			if (socket != null) {
 				socket.close();
+			}
 		}
 	}
 
 	/**
 	 * Broadcasts a UDP message on the LAN to discover any running servers.
-	 * 
+	 *
 	 * @param udpPort
 	 *            The UDP port of the server.
 	 * @param timeoutMillis
@@ -561,21 +602,25 @@ public class Client extends Connection implements EndPoint {
 				try {
 					socket.receive(packet);
 				} catch (SocketTimeoutException ex) {
-					if (INFO)
+					if (INFO) {
 						info("kryonet", "Host discovery timed out.");
+					}
 					return hosts;
 				}
-				if (INFO)
+				if (INFO) {
 					info("kryonet", "Discovered server: " + packet.getAddress());
+				}
 				hosts.add(packet.getAddress());
 			}
 		} catch (IOException ex) {
-			if (ERROR)
+			if (ERROR) {
 				error("kryonet", "Host discovery failed.", ex);
+			}
 			return hosts;
 		} finally {
-			if (socket != null)
+			if (socket != null) {
 				socket.close();
+			}
 		}
 	}
 

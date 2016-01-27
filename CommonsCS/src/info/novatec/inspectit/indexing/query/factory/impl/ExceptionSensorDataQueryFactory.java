@@ -4,7 +4,6 @@ import info.novatec.inspectit.communication.ExceptionEvent;
 import info.novatec.inspectit.communication.data.AggregatedExceptionSensorData;
 import info.novatec.inspectit.communication.data.ExceptionSensorData;
 import info.novatec.inspectit.indexing.IIndexQuery;
-import info.novatec.inspectit.indexing.query.factory.AbstractQueryFactory;
 import info.novatec.inspectit.indexing.restriction.impl.IndexQueryRestrictionFactory;
 
 import java.sql.Timestamp;
@@ -15,19 +14,22 @@ import org.springframework.stereotype.Component;
 
 /**
  * Factory for all queries for the {@link ExceptionSensorData}.
- * 
- * @author Ivan Senic
- * 
- * @param <E>
+ *
+ * @author Ivan Senic, Christoph Heger
+ *
  */
 @Component
-public class ExceptionSensorDataQueryFactory<E extends IIndexQuery> extends AbstractQueryFactory<E> {
+public class ExceptionSensorDataQueryFactory {
 
 	/**
 	 * Returns a query for a list of {@link ExceptionSensorData} objects which are between the from
 	 * and to {@link Date} objects. This list can be used to get an overview over recorded
 	 * Exceptions in a target application.
-	 * 
+	 *
+	 * @param <E>
+	 *            Query of type {@link IIndexQuery}.
+	 * @param query
+	 *            The query to enrich.
 	 * @param template
 	 *            The template data object.
 	 * @param limit
@@ -39,8 +41,7 @@ public class ExceptionSensorDataQueryFactory<E extends IIndexQuery> extends Abst
 	 * @return Query for list of {@link ExceptionSensorData} objects to get an overview of recorded
 	 *         Exceptions.
 	 */
-	public E getUngroupedExceptionOverviewQuery(ExceptionSensorData template, int limit, Date fromDate, Date toDate) {
-		E query = getIndexQueryProvider().getIndexQuery();
+	public <E extends IIndexQuery> E getUngroupedExceptionOverviewQuery(E query, ExceptionSensorData template, int limit, Date fromDate, Date toDate) {
 		query.setPlatformIdent(template.getPlatformIdent());
 		query.setSensorTypeIdent(template.getSensorTypeIdent());
 		query.setMethodIdent(template.getMethodIdent());
@@ -63,13 +64,16 @@ public class ExceptionSensorDataQueryFactory<E extends IIndexQuery> extends Abst
 
 	/**
 	 * Get query for exception tree.
-	 * 
+	 *
+	 * @param <E>
+	 *            Query of type {@link IIndexQuery}.
+	 * @param query
+	 *            The query to enrich.
 	 * @param template
 	 *            Template to use.
 	 * @return Query.
 	 */
-	public E getExceptionTreeQuery(ExceptionSensorData template) {
-		E query = getIndexQueryProvider().getIndexQuery();
+	public <E extends IIndexQuery> E getExceptionTreeQuery(E query, ExceptionSensorData template) {
 		ArrayList<Class<?>> searchedClasses = new ArrayList<Class<?>>();
 		searchedClasses.add(ExceptionSensorData.class);
 		searchedClasses.add(AggregatedExceptionSensorData.class);
@@ -83,7 +87,11 @@ public class ExceptionSensorDataQueryFactory<E extends IIndexQuery> extends Abst
 	/**
 	 * Returns a query for list of objects that is used to show an overview over Exceptions with
 	 * specific information about the number of caused event types.
-	 * 
+	 *
+	 * @param <E>
+	 *            Query of type {@link IIndexQuery}.
+	 * @param query
+	 *            The query to enrich.
 	 * @param template
 	 *            The template object to be used for the query.
 	 * @param fromDate
@@ -93,8 +101,7 @@ public class ExceptionSensorDataQueryFactory<E extends IIndexQuery> extends Abst
 	 * @return A query for the list of objects with additional information about how often a
 	 *         specific eventType was caused.
 	 */
-	public E getDataForGroupedExceptionOverviewQuery(ExceptionSensorData template, Date fromDate, Date toDate) {
-		E query = getIndexQueryProvider().getIndexQuery();
+	public <E extends IIndexQuery> E getDataForGroupedExceptionOverviewQuery(E query, ExceptionSensorData template, Date fromDate, Date toDate) {
 		ArrayList<Class<?>> searchedClasses = new ArrayList<Class<?>>();
 		searchedClasses.add(ExceptionSensorData.class);
 		searchedClasses.add(AggregatedExceptionSensorData.class);
@@ -114,13 +121,16 @@ public class ExceptionSensorDataQueryFactory<E extends IIndexQuery> extends Abst
 
 	/**
 	 * Returns a query for a stack trace message of a throwable type.
-	 * 
+	 *
+	 * @param <E>
+	 *            Query of type {@link IIndexQuery}.
+	 * @param query
+	 *            The query to enrich.
 	 * @param template
 	 *            Template to use.
 	 * @return Query.
 	 */
-	public E getStackTraceMessagesForThrowableTypeQuery(ExceptionSensorData template) {
-		E query = getIndexQueryProvider().getIndexQuery();
+	public <E extends IIndexQuery> E getStackTraceMessagesForThrowableTypeQuery(E query, ExceptionSensorData template) {
 		ArrayList<Class<?>> searchedClasses = new ArrayList<Class<?>>();
 		searchedClasses.add(ExceptionSensorData.class);
 		searchedClasses.add(AggregatedExceptionSensorData.class);

@@ -90,5 +90,8 @@
 
 	<!-- javassist logging -->
 	<!-- logger name="com.javassist" level="info" / -->
+	
+	<!-- Spring debugging -->
+	<logger name ="org.springframework" level="error" />
 
 </configuration>

@@ -2,9 +2,10 @@ package info.novatec.inspectit.kryonet;
 
 import static com.esotericsoftware.minlog.Log.DEBUG;
 import static com.esotericsoftware.minlog.Log.debug;
+
 import info.novatec.inspectit.storage.nio.stream.ExtendedByteBufferOutputStream;
 import info.novatec.inspectit.storage.nio.stream.SocketExtendedByteBufferInputStream;
-import info.novatec.inspectit.storage.nio.stream.StreamProvider;
+import info.novatec.inspectit.storage.nio.stream.StreamFactory;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -22,11 +23,11 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.esotericsoftware.kryonet.KryoNetException;
 
 /**
- * <b>IMPORTANT:</b> The class code is copied/taken/based from <a
- * href="https://github.com/EsotericSoftware/kryonet">kryonet</a>. Original author is Nathan Sweet.
- * License info can be found <a
- * href="https://github.com/EsotericSoftware/kryonet/blob/master/license.txt">here</a>.
- * 
+ * <b>IMPORTANT:</b> The class code is copied/taken/based from
+ * <a href="https://github.com/EsotericSoftware/kryonet">kryonet</a>. Original author is Nathan
+ * Sweet. License info can be found
+ * <a href="https://github.com/EsotericSoftware/kryonet/blob/master/license.txt">here</a>.
+ *
  * @author Nathan Sweet <misc@n4te.com>
  */
 @SuppressWarnings("all")
@@ -35,22 +36,22 @@ class TcpConnection {
 	static private final int IPTOS_LOWDELAY = 0x10;
 
 	/**
-	 * {@link StreamProvider} for creating streams.
+	 * {@link StreamFactory} for creating input and output streams.
 	 */
 	// Added by ISE
-	private StreamProvider streamProvider;
+	private final StreamFactory streamFactory;
 
 	/**
 	 * Write lock for write synch.
 	 */
 	// Added by ISE
-	private Lock writeReentrantLock = new ReentrantLock();
+	private final Lock writeReentrantLock = new ReentrantLock();
 
 	/**
 	 * Queue of {@link ExtendedByteBufferOutputStream}s to be sent to the socket channel.
 	 */
 	// Added by ISE
-	private LinkedBlockingQueue<ExtendedByteBufferOutputStream> writeQueue = new LinkedBlockingQueue<ExtendedByteBufferOutputStream>();
+	private final LinkedBlockingQueue<ExtendedByteBufferOutputStream> writeQueue = new LinkedBlockingQueue<ExtendedByteBufferOutputStream>();
 
 	/**
 	 * {@link SocketExtendedByteBufferInputStream} to read data with.
@@ -72,9 +73,9 @@ class TcpConnection {
 	private final Object writeLock = new Object();
 
 	// Changed by ISE: added StreamProvider
-	public TcpConnection(IExtendedSerialization serialization, int writeBufferSize, int objectBufferSize, StreamProvider streamProvider) {
+	public TcpConnection(IExtendedSerialization serialization, int writeBufferSize, int objectBufferSize, StreamFactory streamFactory) {
 		this.serialization = serialization;
-		this.streamProvider = streamProvider; // Added by ISE
+		this.streamFactory = streamFactory;
 		writeBuffer = ByteBuffer.allocate(writeBufferSize);
 		readBuffer = ByteBuffer.allocate(objectBufferSize);
 		readBuffer.flip();
@@ -100,7 +101,7 @@ class TcpConnection {
 			lastReadTime = lastWriteTime = System.currentTimeMillis();
 
 			// Added by ISE
-			socketInputStream = streamProvider.getSocketExtendedByteBufferInputStream(socketChannel);
+			socketInputStream = streamFactory.getSocketExtendedByteBufferInputStream(socketChannel);
 
 			return selectionKey;
 		} catch (IOException ex) {
@@ -134,7 +135,7 @@ class TcpConnection {
 			lastReadTime = lastWriteTime = System.currentTimeMillis();
 
 			// Added by ISE
-			socketInputStream = streamProvider.getSocketExtendedByteBufferInputStream(socketChannel);
+			socketInputStream = streamFactory.getSocketExtendedByteBufferInputStream(socketChannel);
 		} catch (IOException ex) {
 			close();
 			IOException ioEx = new IOException("Unable to connect to: " + remoteAddress);
@@ -145,8 +146,9 @@ class TcpConnection {
 
 	public Object readObject(Connection connection) throws IOException {
 		SocketChannel socketChannel = this.socketChannel;
-		if (socketChannel == null)
+		if (socketChannel == null) {
 			throw new SocketException("Connection is closed.");
+		}
 
 		// Change by ISE from here to end of method
 
@@ -208,8 +210,9 @@ class TcpConnection {
 
 	private boolean writeToSocket() throws IOException {
 		SocketChannel socketChannel = this.socketChannel;
-		if (socketChannel == null)
+		if (socketChannel == null) {
 			throw new SocketException("Connection is closed.");
+		}
 
 		// Change by ISE from here to end of method
 
@@ -245,17 +248,20 @@ class TcpConnection {
 		return writeQueue.isEmpty();
 	}
 
-	/** This method is thread safe. */
+	/**
+	 * This method is thread safe.
+	 */
 	public int send(Connection connection, Object object) throws IOException {
 		SocketChannel socketChannel = this.socketChannel;
-		if (socketChannel == null)
+		if (socketChannel == null) {
 			throw new SocketException("Connection is closed.");
+		}
 
 		// Change by ISE from here to end of method
 
 		writeReentrantLock.lock();
 		try {
-			ExtendedByteBufferOutputStream outputStream = streamProvider.getExtendedByteBufferOutputStream();
+			ExtendedByteBufferOutputStream outputStream = streamFactory.getExtendedByteBufferOutputStream();
 			int lengthLength = serialization.getLengthLength();
 			// make space for the length
 			// just write empty byte array in correct size
@@ -309,8 +315,9 @@ class TcpConnection {
 			if (socketChannel != null) {
 				socketChannel.close();
 				socketChannel = null;
-				if (selectionKey != null)
+				if (selectionKey != null) {
 					selectionKey.selector().wakeup();
+				}
 			}
 
 			// Added by ISE Start
@@ -330,8 +337,9 @@ class TcpConnection {
 
 			// Added by ISE End
 		} catch (IOException ex) {
-			if (DEBUG)
+			if (DEBUG) {
 				debug("kryonet", "Unable to close TCP connection.", ex);
+			}
 		}
 	}
 
@@ -345,7 +353,7 @@ class TcpConnection {
 
 	/**
 	 * Returns current size to be written.
-	 * 
+	 *
 	 * @return Current size to be written.
 	 */
 	// Added by ISE

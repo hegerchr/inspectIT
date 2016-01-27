@@ -7,11 +7,11 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Abstract class for all {@link IMethodSensor}s to properly initialize after Spring has set all the
+ * Class for all {@link IMethodSensor}s to properly initialize after Spring has set all the
  * properties.
- * 
+ *
  * @author Ivan Senic
- * 
+ *
  */
 public abstract class AbstractMethodSensor implements InitializingBean, IMethodSensor {
 

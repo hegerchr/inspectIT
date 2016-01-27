@@ -3,7 +3,6 @@ package info.novatec.inspectit.indexing.query.factory.impl;
 import info.novatec.inspectit.communication.data.AggregatedSqlStatementData;
 import info.novatec.inspectit.communication.data.SqlStatementData;
 import info.novatec.inspectit.indexing.IIndexQuery;
-import info.novatec.inspectit.indexing.query.factory.AbstractQueryFactory;
 import info.novatec.inspectit.indexing.restriction.impl.IndexQueryRestrictionFactory;
 
 import java.sql.Timestamp;
@@ -14,18 +13,21 @@ import org.springframework.stereotype.Component;
 
 /**
  * Factory for all queries for the {@link SqlStatementData}.
- * 
- * @author Ivan Senic
- * 
- * @param <E>
+ *
+ * @author Ivan Senic, Christoph Heger
+ *
  */
 @Component
-public class SqlStatementDataQueryFactory<E extends IIndexQuery> extends AbstractQueryFactory<E> {
+public class SqlStatementDataQueryFactory {
 
 	/**
 	 * Returns the query for aggregating the {@link SqlStatementData}. If the template holds the SQL
 	 * query string, only objects with this query string will be returned.
 	 * 
+	 * @param <E>
+	 *            Query of type {@link IIndexQuery}.
+	 * @param query
+	 *            The query to enrich.
 	 * @param sqlStatementData
 	 *            The template containing the platform id.
 	 * @param fromDate
@@ -34,8 +36,8 @@ public class SqlStatementDataQueryFactory<E extends IIndexQuery> extends Abstrac
 	 *            Date to include data to.
 	 * @return Query object.
 	 */
-	public E getAggregatedSqlStatementsQuery(SqlStatementData sqlStatementData, Date fromDate, Date toDate) {
-		E query = getIndexQueryProvider().getIndexQuery();
+	public <E extends IIndexQuery> E getAggregatedSqlStatementsQuery(E query, SqlStatementData sqlStatementData, Date fromDate, Date toDate) {
+		// E query = getIndexQueryProvider().getIndexQuery();
 		query.setPlatformIdent(sqlStatementData.getPlatformIdent());
 		ArrayList<Class<?>> searchedClasses = new ArrayList<Class<?>>();
 		searchedClasses.add(SqlStatementData.class);

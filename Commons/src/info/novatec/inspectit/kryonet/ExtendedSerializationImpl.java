@@ -1,13 +1,15 @@
 package info.novatec.inspectit.kryonet;
 
 import info.novatec.inspectit.storage.serializer.IKryoProvider;
-import info.novatec.inspectit.storage.serializer.ISerializerProvider;
+import info.novatec.inspectit.storage.serializer.impl.SerializationManager;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+
+import org.springframework.beans.factory.ObjectFactory;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
@@ -18,9 +20,9 @@ import com.esotericsoftware.kryo.io.Output;
  * (de-)serializing the object during the communication. The idea is not to (de-)serialize from/to
  * buffer, but to use the streams which would give us opportunity to transfer objects of unlimited
  * size.
- * 
+ *
  * @author Ivan Senic
- * 
+ *
  */
 @SuppressWarnings("all")
 public class ExtendedSerializationImpl implements IExtendedSerialization {
@@ -33,40 +35,37 @@ public class ExtendedSerializationImpl implements IExtendedSerialization {
 	/**
 	 * Queue for {@link IKryoProvider} that are available.
 	 */
-	private Queue<IKryoProvider> serializerQueue = new ConcurrentLinkedQueue<IKryoProvider>();
+	private final Queue<IKryoProvider> serializerQueue = new ConcurrentLinkedQueue<IKryoProvider>();
 
 	/**
-	 * {@link ISerializerProvider} for create new instances.
+	 * {@link ObjectFactory} to create new {@link SerializationManager} instances.
 	 */
-	private ISerializerProvider<? extends IKryoProvider> serializerProvider;
+	private final ObjectFactory<SerializationManager> serializationManagerFactory;
 
 	/**
 	 * One argument constructor. Same as calling
-	 * {@link #ExtendedSerializationImpl(ISerializerProvider, int)} with init serializers value of
+	 * {@link #ExtendedSerializationImpl(ObjectFactory, int)} with init serializers value of
 	 * {@value #INIT_CREATED_SERIALIZERS}.
-	 * 
-	 * @param serializerProvider
-	 *            {@link ISerializerProvider} needed for creation of the {@link IKryoProvider}
-	 *            instances.
+	 *
+	 * @param serializationManagerFactory
+	 *            {@link ObjectFactory} needed for creation of the {@link IKryoProvider} instances.
 	 */
-	public ExtendedSerializationImpl(ISerializerProvider<? extends IKryoProvider> serializerProvider) {
-		this(serializerProvider, INIT_CREATED_SERIALIZERS);
+	public ExtendedSerializationImpl(ObjectFactory<SerializationManager> serializationManagerFactory) {
+		this(serializationManagerFactory, INIT_CREATED_SERIALIZERS);
 	}
 
 	/**
 	 * Default constructor.
-	 * 
-	 * @param serializerProvider
-	 *            {@link ISerializerProvider} needed for creation of the {@link IKryoProvider}
-	 *            instances.
+	 *
+	 * @param serializationManagerFactory
+	 *            {@link ObjectFactory} needed for creation of the {@link IKryoProvider} instances.
 	 * @param initialSerializersCreated
 	 *            Amount of {@link IKryoProvider}s to be created immediately.
 	 */
-	public ExtendedSerializationImpl(ISerializerProvider<? extends IKryoProvider> serializerProvider, int initialSerializersCreated) {
-		this.serializerProvider = serializerProvider;
-
+	public ExtendedSerializationImpl(ObjectFactory<SerializationManager> serializationManagerFactory, int initialSerializersCreated) {
+		this.serializationManagerFactory = serializationManagerFactory;
 		for (int i = 0; i < initialSerializersCreated; i++) {
-			serializerQueue.offer(createKryoProvider());
+			serializerQueue.offer(serializationManagerFactory.getObject());
 		}
 	}
 
@@ -123,7 +122,7 @@ public class ExtendedSerializationImpl implements IExtendedSerialization {
 
 		// if nothing is available in queue don't wait, create new one
 		if (null == kryoProvider) {
-			kryoProvider = createKryoProvider();
+			kryoProvider = serializationManagerFactory.getObject();
 		}
 
 		try {
@@ -137,7 +136,7 @@ public class ExtendedSerializationImpl implements IExtendedSerialization {
 	}
 
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 */
 	@SuppressWarnings("unchecked")
@@ -147,7 +146,7 @@ public class ExtendedSerializationImpl implements IExtendedSerialization {
 
 		// if nothing is available in queue don't wait, create new one
 		if (null == kryoProvider) {
-			kryoProvider = createKryoProvider();
+			kryoProvider = serializationManagerFactory.getObject();
 		}
 
 		try {
@@ -157,17 +156,6 @@ public class ExtendedSerializationImpl implements IExtendedSerialization {
 		} finally {
 			serializerQueue.offer(kryoProvider);
 		}
-	}
-
-	/**
-	 * Creates new {@link IKryoProvider}.
-	 * <p>
-	 * Sub-classes can override.
-	 * 
-	 * @return Creates new {@link IKryoProvider}.
-	 */
-	protected IKryoProvider createKryoProvider() {
-		return serializerProvider.createSerializer();
 	}
 
 }

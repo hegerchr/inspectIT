@@ -11,13 +11,15 @@ import java.nio.ByteBuffer;
 import java.nio.file.Path;
 
 import org.slf4j.Logger;
+import org.springframework.stereotype.Component;
 
 /**
  * Channel manager that performs reading.
- * 
+ *
  * @author Ivan Senic
- * 
+ *
  */
+@Component
 public class ReadingChannelManager extends AbstractChannelManager {
 
 	/**
@@ -29,7 +31,7 @@ public class ReadingChannelManager extends AbstractChannelManager {
 	/**
 	 * Max opened channels.
 	 */
-	private int maxOpenedChannels = 128;
+	private final int maxOpenedChannels = 128;
 
 	/**
 	 * Reads the content of the channel with supplied ID to the buffer. The read will start from the
@@ -42,7 +44,7 @@ public class ReadingChannelManager extends AbstractChannelManager {
 	 * <p>
 	 * It is a responsibility of a caller to assure that the buffer supplied would not be used by
 	 * other threads until the read operation is finished.
-	 * 
+	 *
 	 * @param byteBuffer
 	 *            {@link ByteBuffer} that data will be read to.
 	 * @param position

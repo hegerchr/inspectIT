@@ -42,8 +42,8 @@
 <plugin id="info.novatec.sysout-over-slf4j"/>
 <plugin id="javax.el"/>
 <plugin id="javax.el.source"/>
-<plugin id="javax.servlet" version="3.0.0.v201103241009"/>
 <plugin id="javax.servlet" version="3.0.0.v201112011016"/>
+<plugin id="javax.servlet" version="3.0.0.v201103241009"/>
 <plugin id="javax.servlet.jsp"/>
 <plugin id="javax.servlet.jsp.source"/>
 <plugin id="javax.servlet.source"/>
@@ -55,7 +55,6 @@
 <plugin id="org.apache.commons.codec"/>
 <plugin id="org.apache.commons.codec.source"/>
 <plugin id="org.apache.commons.collections" version="3.2.1"/>
-<plugin id="org.apache.commons.collections" version="3.2.1"/>
 <plugin id="org.apache.commons.fileupload"/>
 <plugin id="org.apache.commons.httpclient"/>
 <plugin id="org.apache.commons.httpclient.source"/>
@@ -63,7 +62,6 @@
 <plugin id="org.apache.commons.lang"/>
 <plugin id="org.apache.commons.logging"/>
 <plugin id="org.apache.commons.logging.source"/>
-<plugin id="org.apache.commons.pool" version="1.6.0"/>
 <plugin id="org.apache.commons.pool" version="1.6.0"/>
 <plugin id="org.apache.felix.gogo.command"/>
 <plugin id="org.apache.felix.gogo.command.source"/>
@@ -436,6 +434,10 @@
 <plugin id="org.objenesis"/>
 <plugin id="org.sat4j.core"/>
 <plugin id="org.sat4j.pb"/>
+<plugin id="org.springframework.osgi.core"/>
+<plugin id="org.springframework.osgi.extender"/>
+<plugin id="org.springframework.osgi.extensions.annotations"/>
+<plugin id="org.springframework.osgi.io"/>
 <plugin id="slf4j.api"/>
 </includeBundles>
 <targetJRE path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>

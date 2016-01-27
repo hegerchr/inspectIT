@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * The http sensor which initializes and returns the {@link HttpHook} class.
- * 
+ *
  * @author Stefan Siegl
  */
 public class HttpSensor extends AbstractMethodSensor implements IMethodSensor {
@@ -43,7 +43,7 @@ public class HttpSensor extends AbstractMethodSensor implements IMethodSensor {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param timer
 	 *            the timer.
 	 * @param idManager

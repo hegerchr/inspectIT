@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Patrice Bouillet
- * 
+ *
  */
 public class PreparedStatementSensor extends AbstractMethodSensor implements IMethodSensor {
 

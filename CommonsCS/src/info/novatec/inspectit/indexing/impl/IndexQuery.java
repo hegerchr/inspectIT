@@ -19,11 +19,11 @@ import org.springframework.stereotype.Component;
 
 /**
  * {@link IndexQuery} represent an object that is used in querying the tree structure of the buffer.
- * 
+ *
  * @author Ivan Senic
- * 
+ *
  */
-@Component
+@Component("indexQuery")
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Lazy
 public class IndexQuery implements IIndexQuery {
@@ -73,11 +73,12 @@ public class IndexQuery implements IIndexQuery {
 	/**
 	 * List of restrictions for this query.
 	 */
-	private List<IIndexQueryRestriction> indexingRestrictionList = new ArrayList<IIndexQueryRestriction>();
+	private final List<IIndexQueryRestriction> indexingRestrictionList = new ArrayList<IIndexQueryRestriction>();
 
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public long getMinId() {
 		return minId;
 	}
@@ -85,6 +86,7 @@ public class IndexQuery implements IIndexQuery {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void setMinId(long minId) {
 		this.minId = minId;
 	}
@@ -92,6 +94,7 @@ public class IndexQuery implements IIndexQuery {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public long getPlatformIdent() {
 		return platformIdent;
 	}
@@ -99,6 +102,7 @@ public class IndexQuery implements IIndexQuery {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void setPlatformIdent(long platformIdent) {
 		this.platformIdent = platformIdent;
 	}
@@ -106,6 +110,7 @@ public class IndexQuery implements IIndexQuery {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public long getSensorTypeIdent() {
 		return sensorTypeIdent;
 	}
@@ -113,6 +118,7 @@ public class IndexQuery implements IIndexQuery {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void setSensorTypeIdent(long sensorTypeIdent) {
 		this.sensorTypeIdent = sensorTypeIdent;
 	}
@@ -120,6 +126,7 @@ public class IndexQuery implements IIndexQuery {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public long getMethodIdent() {
 		return methodIdent;
 	}
@@ -127,6 +134,7 @@ public class IndexQuery implements IIndexQuery {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void setMethodIdent(long methodIdent) {
 		this.methodIdent = methodIdent;
 	}
@@ -134,6 +142,7 @@ public class IndexQuery implements IIndexQuery {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public List<Class<?>> getObjectClasses() {
 		return objectClasses;
 	}
@@ -141,6 +150,7 @@ public class IndexQuery implements IIndexQuery {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void setObjectClasses(List objectClasses) {
 		this.objectClasses = objectClasses;
@@ -149,6 +159,7 @@ public class IndexQuery implements IIndexQuery {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public Timestamp getFromDate() {
 		return fromDate;
 	}
@@ -156,6 +167,7 @@ public class IndexQuery implements IIndexQuery {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void setFromDate(Timestamp fromDate) {
 		this.fromDate = fromDate;
 	}
@@ -163,6 +175,7 @@ public class IndexQuery implements IIndexQuery {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public Timestamp getToDate() {
 		return toDate;
 	}
@@ -170,6 +183,7 @@ public class IndexQuery implements IIndexQuery {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void setToDate(Timestamp toDate) {
 		this.toDate = toDate;
 	}
@@ -177,6 +191,7 @@ public class IndexQuery implements IIndexQuery {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void addIndexingRestriction(IIndexQueryRestriction indexingRestriction) {
 		indexingRestrictionList.add(indexingRestriction);
 	}
@@ -191,6 +206,7 @@ public class IndexQuery implements IIndexQuery {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public boolean isIntervalSet() {
 		if (null != fromDate) {
 			if (null == toDate) {
@@ -207,6 +223,7 @@ public class IndexQuery implements IIndexQuery {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public boolean isInInterval(Timestamp timestamp) {
 		if (isIntervalSet()) {
 			if (null == timestamp) {
@@ -228,6 +245,7 @@ public class IndexQuery implements IIndexQuery {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public boolean areAllRestrictionsFulfilled(DefaultData defaultData) {
 		return restrictionProcessor.areAllRestrictionsFulfilled(defaultData, indexingRestrictionList);
 	}

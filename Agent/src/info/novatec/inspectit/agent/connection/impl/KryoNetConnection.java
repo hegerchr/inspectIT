@@ -7,7 +7,6 @@ import info.novatec.inspectit.agent.connection.FailFastRemoteMethodCall;
 import info.novatec.inspectit.agent.connection.IConnection;
 import info.novatec.inspectit.agent.connection.RegistrationException;
 import info.novatec.inspectit.agent.connection.ServerUnavailableException;
-import info.novatec.inspectit.agent.spring.PrototypesProvider;
 import info.novatec.inspectit.cmr.service.IAgentStorageService;
 import info.novatec.inspectit.cmr.service.IKeepAliveService;
 import info.novatec.inspectit.cmr.service.IRegistrationService;
@@ -18,6 +17,8 @@ import info.novatec.inspectit.kryonet.ExtendedSerializationImpl;
 import info.novatec.inspectit.kryonet.IExtendedSerialization;
 import info.novatec.inspectit.kryonet.rmi.ObjectSpace;
 import info.novatec.inspectit.spring.logger.Log;
+import info.novatec.inspectit.storage.nio.stream.StreamFactory;
+import info.novatec.inspectit.storage.serializer.impl.SerializationManager;
 
 import java.net.ConnectException;
 import java.net.InetAddress;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -36,9 +38,9 @@ import com.esotericsoftware.kryonet.rmi.RemoteObject;
 
 /**
  * Implements the {@link IConnection} interface using the kryo-net.
- * 
+ *
  * @author Patrice Bouillet
- * 
+ *
  */
 @Component
 public class KryoNetConnection implements IConnection {
@@ -48,12 +50,6 @@ public class KryoNetConnection implements IConnection {
 	 */
 	@Log
 	Logger log;
-
-	/**
-	 * {@link PrototypesProvider}.
-	 */
-	@Autowired
-	private PrototypesProvider prototypesProvider;
 
 	/**
 	 * The kryonet client to connect to the CMR.
@@ -85,6 +81,15 @@ public class KryoNetConnection implements IConnection {
 	 * The list of all network interfaces.
 	 */
 	private List<String> networkInterfaces;
+
+	/**
+	 * {@link ObjectFactory} to create {@link SerializationManager} instances.
+	 */
+	@Autowired
+	private ObjectFactory<SerializationManager> serializationManagerFactory;
+
+	@Autowired
+	private StreamFactory streamFactory;
 
 	/**
 	 * {@inheritDoc}
@@ -132,7 +137,7 @@ public class KryoNetConnection implements IConnection {
 
 	/**
 	 * Creates new client and tries to connect to host.
-	 * 
+	 *
 	 * @param host
 	 *            Host IP address.
 	 * @param port
@@ -141,9 +146,9 @@ public class KryoNetConnection implements IConnection {
 	 *             If {@link Exception} occurs during communication.
 	 */
 	private void initClient(String host, int port) throws Exception {
-		IExtendedSerialization serialization = new ExtendedSerializationImpl(prototypesProvider);
+		IExtendedSerialization serialization = new ExtendedSerializationImpl(serializationManagerFactory);
 
-		client = new Client(serialization, prototypesProvider);
+		client = new Client(serialization, streamFactory);
 		client.start();
 		client.connect(5000, host, port);
 	}
@@ -361,7 +366,7 @@ public class KryoNetConnection implements IConnection {
 	/**
 	 * Loads all the network interfaces and transforms the enumeration to the list of strings
 	 * containing all addresses.
-	 * 
+	 *
 	 * @return List of all network interfaces.
 	 * @throws SocketException
 	 *             If {@link SocketException} occurs.
@@ -371,10 +376,10 @@ public class KryoNetConnection implements IConnection {
 		List<String> networkInterfaces = new ArrayList<String>();
 
 		while (interfaces.hasMoreElements()) {
-			NetworkInterface networkInterface = (NetworkInterface) interfaces.nextElement();
+			NetworkInterface networkInterface = interfaces.nextElement();
 			Enumeration<InetAddress> addresses = networkInterface.getInetAddresses();
 			while (addresses.hasMoreElements()) {
-				InetAddress address = (InetAddress) addresses.nextElement();
+				InetAddress address = addresses.nextElement();
 				networkInterfaces.add(address.getHostAddress());
 			}
 		}
