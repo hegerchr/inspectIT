@@ -625,7 +625,12 @@ public class InvocOverviewInputController extends AbstractTableInputController {
 				}
 
 			} else {
-				return emptyStyledString;
+				IBusinessTransactionDefinition bTxDef = cachedDataService.getBusinessTransactionDefinitionForId(data.getApplicationId(), data.getBusinessTransactionId());
+				if (null != bTxDef) {
+					return new StyledString(bTxDef.getBusinessTransactionName());
+				} else {
+					return emptyStyledString;
+				}
 			}
 		default:
 			return new StyledString("error");

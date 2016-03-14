@@ -111,8 +111,8 @@
 		<fileset id="test.classes-to-instrument" dir="${build.commonscs.classes}" includes="**/*.class" />
 
 		<property name="test.workingDir" value="${basedir}"/>
-		<property name="test.javac.source" value="1.7"/>
-		<property name="test.javac.target" value="1.7"/>
+		<property name="test.javac.source" value="1.8"/>
+		<property name="test.javac.target" value="1.8"/>
 		<property name="test.vmargs" value=""/>
 		<property name="test.targetsuite" value="${resources.testng}/testng.xml"/>
 
