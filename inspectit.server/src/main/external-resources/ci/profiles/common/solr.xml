@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<profile xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="-7560841887379711783" name="Apache Solr" description="Profile for Apache Solr 6.1.0" created-on="2016-07-04T13:20:53.065+02:00" updated-on="2016-07-04T13:22:53.073+02:00" common="true" active="true" default="false" revision="2" xsi:noNamespaceSchemaLocation="..\schema\ciSchema.xsd">
+    <sensor-assignment-profile-data>
+        <timer-method-sensor-assignment starts-invocation="true" min-invocation-duration="0" charting="false" sensor-config-class="rocks.inspectit.shared.cs.ci.sensor.method.impl.TimerSensorConfig" method-name="*" constructor="false" public-mod="true" protected-mod="true" private-mod="true" default-mod="true" class-name="org.apache.lucene.search.IndexSearcher" superclass="false" interface="false"/>
+        <timer-method-sensor-assignment starts-invocation="true" min-invocation-duration="0" charting="false" sensor-config-class="rocks.inspectit.shared.cs.ci.sensor.method.impl.TimerSensorConfig" method-name="*" constructor="false" public-mod="true" protected-mod="true" private-mod="true" default-mod="true" class-name="org.apache.lucene.index.IndexWriter" superclass="false" interface="false"/>
+        <timer-method-sensor-assignment starts-invocation="true" min-invocation-duration="0" charting="false" sensor-config-class="rocks.inspectit.shared.cs.ci.sensor.method.impl.TimerSensorConfig" method-name="*" constructor="false" public-mod="true" protected-mod="true" private-mod="true" default-mod="true" class-name="org.apache.solr.servlet.SolrDispatchFilter" superclass="false" interface="false"/>
+    </sensor-assignment-profile-data>
+</profile>
